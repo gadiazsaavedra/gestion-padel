@@ -1,0 +1,9 @@
+asgiref==3.8.1
+channels==4.2.2
+channels_redis==4.2.1
+coverage==7.9.1
+Django==5.2.3
+msgpack==1.1.1
+pillow==11.2.1
+redis==6.2.0
+sqlparse==0.5.3
