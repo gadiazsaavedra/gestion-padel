@@ -1,0 +1,36 @@
+{% extends 'club/base.html' %}
+{% block title %}Abrir Caja{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto mt-10">
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-2xl font-bold text-center mb-6">🔓 Abrir Caja</h2>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    💰 Saldo Inicial
+                </label>
+                <input type="number" name="saldo_inicial" step="0.01" min="0" 
+                       class="w-full p-3 border rounded-lg" placeholder="0.00" required>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    📝 Observaciones
+                </label>
+                <textarea name="observaciones" rows="3" 
+                          class="w-full p-3 border rounded-lg" 
+                          placeholder="Observaciones de apertura..."></textarea>
+            </div>
+            
+            <button type="submit" 
+                    class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700">
+                🔓 Abrir Caja
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

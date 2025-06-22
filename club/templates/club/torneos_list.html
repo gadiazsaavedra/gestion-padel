@@ -1,0 +1,20 @@
+{% extends 'club/base.html' %}
+{% block title %}Torneos{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white rounded shadow p-8 mt-8">
+    <h1 class="text-2xl font-bold mb-6 text-blue-700">Torneos</h1>
+    <ul class="divide-y">
+        {% for torneo in torneos %}
+        <li class="py-4 flex justify-between items-center">
+            <div>
+                <span class="font-semibold">{{ torneo.nombre }}</span><br>
+                <span class="text-gray-500 text-sm">{{ torneo.fecha_inicio }} - {{ torneo.fecha_fin }}</span>
+            </div>
+            <a href="{% url 'torneo_detalle' torneo.id %}" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">Ver detalle</a>
+        </li>
+        {% empty %}
+        <li>No hay torneos disponibles.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

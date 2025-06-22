@@ -1,0 +1,5 @@
+secret:
+  ignored_matches:
+  - match: 445e55f16377b6f9bd45fbc11dd7f39320667637b7cb3edc7fb8ae91892dc5e8
+    name: Username Password - gestion_stock/tests.py:l.9
+version: 2

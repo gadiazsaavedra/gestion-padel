@@ -1,0 +1,13 @@
+{% extends 'club/base.html' %}
+{% block title %}Cancelar Reserva{% endblock %}
+{% block content %}
+<div class="max-w-md mx-auto bg-white rounded shadow p-6">
+    <h1 class="text-xl font-bold mb-4 text-red-600">Cancelar Reserva</h1>
+    <p class="mb-6 text-center">¿Estás seguro que deseas cancelar la reserva del {{ reserva.fecha }} a las {{ reserva.hora|time:"H:i" }}?</p>
+    <form method="post" class="flex flex-col items-center space-y-4">
+        {% csrf_token %}
+        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Cancelar reserva</button>
+        <a href="{% url 'detalle_reserva' reserva.id %}" class="text-blue-600 mt-2">Volver</a>
+    </form>
+</div>
+{% endblock %}

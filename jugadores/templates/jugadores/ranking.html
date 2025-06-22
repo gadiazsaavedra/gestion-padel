@@ -1,0 +1,105 @@
+{% extends 'club/base.html' %}
+{% block content %}
+<div class="max-w-6xl mx-auto p-4">
+  <h1 class="text-3xl font-bold mb-6 text-blue-700">🏆 Mi Ranking y Estadísticas</h1>
+  
+  <!-- Estadísticas Personales -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div class="bg-white rounded-lg shadow p-4 border-l-4 border-blue-500">
+      <div class="text-2xl font-bold text-blue-600">{{ estadisticas_personales.total_reservas }}</div>
+      <div class="text-gray-600 text-sm">🎾 Total Reservas</div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-4 border-l-4 border-green-500">
+      <div class="text-2xl font-bold text-green-600">${{ estadisticas_personales.total_gastado|floatformat:0 }}</div>
+      <div class="text-gray-600 text-sm">💰 Total Gastado</div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-4 border-l-4 border-yellow-500">
+      <div class="text-2xl font-bold text-yellow-600">{{ estadisticas_personales.puntos_totales }}</div>
+      <div class="text-gray-600 text-sm">⭐ Puntos Totales</div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-4 border-l-4 border-purple-500">
+      <div class="text-2xl font-bold text-purple-600">{{ estadisticas_personales.horario_favorito }}</div>
+      <div class="text-gray-600 text-sm">🕰️ Horario Favorito</div>
+    </div>
+  </div>
+  
+  <!-- Desglose de Reservas -->
+  <div class="bg-white rounded-lg shadow p-6 mb-8">
+    <h2 class="text-xl font-bold mb-4 text-gray-800">📊 Resumen de Actividad</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="text-center">
+        <div class="text-3xl font-bold text-blue-600">{{ estadisticas_personales.reservas_pagadas }}</div>
+        <div class="text-gray-600">Reservas Pagadas</div>
+      </div>
+      <div class="text-center">
+        <div class="text-3xl font-bold text-red-600">{{ estadisticas_personales.reservas_canceladas }}</div>
+        <div class="text-gray-600">Reservas Canceladas</div>
+      </div>
+      <div class="text-center">
+        <div class="text-3xl font-bold text-green-600">${{ estadisticas_personales.promedio_mensual|floatformat:0 }}</div>
+        <div class="text-gray-600">Promedio Mensual</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Gráficos -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class="bg-white rounded-lg shadow p-6">
+      <h2 class="text-xl font-bold mb-4 text-gray-800">📈 Mi Progreso (6 meses)</h2>
+      <canvas id="chartProgreso" height="200"></canvas>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6">
+      <h2 class="text-xl font-bold mb-4 text-gray-800">🏅 Top 5 Jugadores</h2>
+      <canvas id="chartComparacion" height="200"></canvas>
+    </div>
+  </div>
+  
+  <!-- Ranking por Torneos -->
+  <div class="bg-white rounded-lg shadow p-6">
+    <h2 class="text-xl font-bold mb-4 text-gray-800">🏆 Ranking por Torneos</h2>
+    {% if ranking_data %}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {% for r in ranking_data %}
+          <div class="border rounded-lg p-4 {% if r.puntos %}bg-blue-50 border-blue-200{% else %}bg-gray-50 border-gray-200{% endif %}">
+            <h3 class="font-semibold text-lg mb-2">{{ r.torneo.nombre }}</h3>
+            {% if r.puntos is not None %}
+              <div class="flex justify-between items-center">
+                <div>
+                  <p class="text-2xl font-bold text-blue-600">{{ r.puntos }} pts</p>
+                  <p class="text-gray-600 text-sm">Posición {{ r.posicion }} de {{ r.total }}</p>
+                </div>
+                <div class="text-right">
+                  {% if r.posicion <= 3 %}
+                    <span class="text-2xl">
+                      {% if r.posicion == 1 %}🥇{% elif r.posicion == 2 %}🥈{% else %}🥉{% endif %}
+                    </span>
+                  {% endif %}
+                </div>
+              </div>
+            {% else %}
+              <p class="text-gray-500">Sin puntos registrados</p>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-gray-500 text-center py-8">No hay torneos activos disponibles.</p>
+    {% endif %}
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Gráfico de progreso
+const progresoData = {{ progreso_chart|safe }};
+if (progresoData && progresoData.data) {
+  new Chart(document.getElementById('chartProgreso'), progresoData);
+}
+
+// Gráfico de comparación
+const comparacionData = {{ comparacion_chart|safe }};
+if (comparacionData && comparacionData.data) {
+  new Chart(document.getElementById('chartComparacion'), comparacionData);
+}
+</script>
+{% endblock %}

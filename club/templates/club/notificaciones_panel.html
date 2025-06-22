@@ -1,0 +1,28 @@
+{% extends 'club/base.html' %}
+{% block title %}Notificaciones{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white rounded shadow p-8 mt-8">
+    <h1 class="text-2xl font-bold mb-6 text-blue-700">Notificaciones</h1>
+    <ul id="notificaciones-list" class="divide-y">
+        {% for n in notificaciones %}
+        <li class="py-3">{{ n.mensaje }}</li>
+        {% empty %}
+        <li>No hay notificaciones.</li>
+        {% endfor %}
+    </ul>
+    <div id="notificacion-realtime" class="mt-4"></div>
+</div>
+<script>
+    const userId = {{ user.id|default:'null' }};
+    if (userId) {
+        const ws = new WebSocket(
+            (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + '/ws/notificaciones/'
+        );
+        ws.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            const div = document.getElementById('notificacion-realtime');
+            div.innerHTML = `<div class='bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded mb-2'>${data.mensaje}</div>` + div.innerHTML;
+        };
+    }
+</script>
+{% endblock %}

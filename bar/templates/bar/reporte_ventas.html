@@ -1,0 +1,49 @@
+{% extends 'club/base.html' %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">Reporte de Ventas</h1>
+<p class="mb-2">Total de ventas: <b>{{ total_ventas }}</b> | Ingresos totales: <b>${{ total_ingresos }}</b></p>
+<h2 class="text-xl font-bold mt-6 mb-2">Resumen por producto</h2>
+<table class="min-w-full bg-white rounded shadow mb-8">
+    <thead>
+        <tr>
+            <th class="px-4 py-2">Producto</th>
+            <th class="px-4 py-2">Cantidad vendida</th>
+            <th class="px-4 py-2">Ingresos</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for r in resumen %}
+        <tr class="border-t">
+            <td class="px-4 py-2">{{ r.producto__nombre }}</td>
+            <td class="px-4 py-2">{{ r.total_vendido }}</td>
+            <td class="px-4 py-2">${{ r.total_ingresos }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3" class="text-center py-4">Sin ventas.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+<h2 class="text-xl font-bold mb-2">Últimas ventas</h2>
+<table class="min-w-full bg-white rounded shadow">
+    <thead>
+        <tr>
+            <th class="px-4 py-2">Fecha</th>
+            <th class="px-4 py-2">Producto</th>
+            <th class="px-4 py-2">Cantidad</th>
+            <th class="px-4 py-2">Usuario</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for v in ventas %}
+        <tr class="border-t">
+            <td class="px-4 py-2">{{ v.fecha|date:'d/m/Y H:i' }}</td>
+            <td class="px-4 py-2">{{ v.producto.nombre }}</td>
+            <td class="px-4 py-2">{{ v.cantidad }}</td>
+            <td class="px-4 py-2">{{ v.usuario|default:'-' }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="text-center py-4">Sin ventas.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

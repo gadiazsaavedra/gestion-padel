@@ -1,0 +1,23 @@
+{% extends 'club/base.html' %}
+{% block content %}
+<h1 class="text-xl font-bold mb-4">{% if producto %}Editar{% else %}Nuevo{% endif %} Producto</h1>
+<form method="post" enctype="multipart/form-data" class="space-y-4 max-w-lg mx-auto bg-white p-6 rounded shadow">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {{ form.nombre.label_tag }}{{ form.nombre }}
+        {{ form.categoria.label_tag }}{{ form.categoria }}
+        {{ form.stock.label_tag }}{{ form.stock }}
+        {{ form.precio.label_tag }}{{ form.precio }}
+        {{ form.imagen.label_tag }}{{ form.imagen }}
+        {{ form.color.label_tag }}{{ form.color }}
+        {{ form.marca.label_tag }}{{ form.marca }}
+        {{ form.modelo.label_tag }}{{ form.modelo }}
+        {{ form.peso.label_tag }}{{ form.peso }}
+        {{ form.material.label_tag }}{{ form.material }}
+    </div>
+    {{ form.descripcion.label_tag }}{{ form.descripcion }}
+    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Guardar</button>
+    <a href="{% url 'bar:productos_list' %}" class="ml-4 text-gray-600">Cancelar</a>
+</form>
+{% endblock %}

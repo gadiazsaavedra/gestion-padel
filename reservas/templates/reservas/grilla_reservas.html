@@ -1,0 +1,184 @@
+{% extends 'club/base.html' %}
+{% load get_item %}
+{% block title %}Grilla de Reservas{% endblock %}
+{% block content %}
+<div class="overflow-x-auto" role="region" aria-label="Grilla de reservas">
+    <h1 class="text-2xl font-bold mb-4">Grilla de Reservas (semana actual)</h1>
+    <form method="get" class="mb-4 flex flex-col md:flex-row gap-2 items-center" aria-label="Filtrar reservas por cancha">
+        <label class="font-semibold" for="cancha-select">Filtrar por cancha:</label>
+        <select id="cancha-select" name="cancha" class="border rounded px-3 py-2" aria-label="Seleccionar cancha">
+            <option value="">Todas</option>
+            {% for c in canchas %}
+            <option value="{{ c }}" {% if request.GET.cancha == c|stringformat:'s' %}selected{% endif %}>Cancha {{ c }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded focus:ring-2 focus:ring-blue-400 focus:outline-none">Filtrar</button>
+    </form>
+    <div class="w-full overflow-x-auto">
+    <table class="min-w-full border text-xs md:text-sm" role="table" aria-label="Cuadrícula de reservas">
+        <thead>
+            <tr>
+                <th class="border-2 border-white px-2 py-1 bg-blue-200 text-blue-900 text-base md:text-lg font-bold" scope="col">Hora</th>
+                {% for d in dias %}
+                <th class="border-2 border-white px-2 py-1 bg-blue-200 text-blue-900 text-base md:text-lg font-bold" scope="col">{{ d|date:"D d/m" }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for h in horas %}
+            <tr>
+                <th class="border-2 border-white px-2 py-1 font-semibold bg-gray-200 text-gray-800 text-base md:text-lg" scope="row">{{ h|time:"H:i" }}</th>
+                {% for d in dias %}
+                {% with reserva=grilla|get_item:d|get_item:h %}
+                    {% with prev_horas=horas|slice:":forloop.counter0" %}
+                        {% if prev_horas %}
+                            {% with prev_h=prev_horas|last %}
+                                {% with prev_reserva=grilla|get_item:d|get_item:prev_h %}
+                                    <td class="border-2 border-white px-2 py-1 text-center align-middle shadow-lg transition-colors duration-300 text-sm
+                                        {% if reserva is None or reserva.estado == 'disponible' %}
+                                            bg-green-500 hover:bg-green-600 text-white border-l-4 border-green-700
+                                        {% elif reserva.estado == 'ocupada' %}
+                                            bg-yellow-400 hover:bg-yellow-500 text-yellow-800 border-l-4 border-yellow-600
+                                        {% elif reserva.estado == 'pagada' %}
+                                            bg-blue-500 hover:bg-blue-600 text-white border-l-4 border-blue-700
+                                        {% elif reserva.estado == 'cancelada' %}
+                                            bg-red-100 hover:bg-red-200 text-red-800 border-l-4 border-red-400
+                                        {% else %}
+                                            bg-gray-300 text-gray-700 border-l-4 border-gray-500
+                                        {% endif %}
+                                        {% if reserva and prev_reserva and reserva.jugador and prev_reserva.jugador and reserva.jugador.id == prev_reserva.jugador.id %}
+                                            border-l-8 border-purple-700
+                                        {% endif %}
+                                    ">
+                                        {% if reserva is None or reserva.estado == 'disponible' %}
+                                            <button onclick="
+                                                document.getElementById('fechaSeleccionada').textContent = '{{ d|date:'D d/m' }}';
+                                                document.getElementById('horaSeleccionada').textContent = '{{ h|time:'H:i' }}';
+                                                document.getElementById('fechaInput').value = '{{ d|date:'Y-m-d' }}';
+                                                document.getElementById('horaInput').value = '{{ h|time:'H:i' }}';
+                                                document.getElementById('modalReserva').style.display = 'flex';
+                                            "
+                                               class="block w-full h-full p-2 font-semibold cursor-pointer"
+                                               aria-label="Reservar turno para el {{ d|date:'d/m' }} a las {{ h|time:'H:i' }}"
+                                               tabindex="0">
+                                                DISPONIBLE
+                                            </button>
+                                        {% else %}
+                                            <a href="{% url 'detalle_reserva' reserva.id %}"
+                                               class="block w-full h-full p-2"
+                                               aria-label="Ver detalle de reserva para {{ reserva.jugador|default:reserva.grupo }} el {{ d|date:'d/m' }} a las {{ h|time:'H:i' }}">
+                                                <div class="font-bold">
+                                                    {% if reserva.jugador %}
+                                                        {{ reserva.jugador.nombre|truncatechars:10 }}
+                                                    {% elif reserva.grupo %}
+                                                        Grupo {{ reserva.grupo.id }}
+                                                    {% else %}
+                                                        Reservado
+                                                    {% endif %}
+                                                </div>
+                                                <div class="text-xs">
+                                                    ({{ reserva.get_estado_display }})
+                                                </div>
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                {% endwith %}
+                            {% endwith %}
+                        {% else %}
+                            <td class="border-2 border-white px-2 py-1 text-center align-middle shadow-lg transition-colors duration-300 text-sm
+                                {% if reserva is None or reserva.estado == 'disponible' %}
+                                    bg-green-500 hover:bg-green-600 text-white border-l-4 border-green-700
+                                {% elif reserva.estado == 'ocupada' %}
+                                    bg-yellow-400 hover:bg-yellow-500 text-yellow-800 border-l-4 border-yellow-600
+                                {% elif reserva.estado == 'pagada' %}
+                                    bg-blue-500 hover:bg-blue-600 text-white border-l-4 border-blue-700
+                                {% elif reserva.estado == 'cancelada' %}
+                                    bg-red-100 hover:bg-red-200 text-red-800 border-l-4 border-red-400
+                                {% else %}
+                                    bg-gray-300 text-gray-700 border-l-4 border-gray-500
+                                {% endif %}
+                            ">
+                                {% if reserva is None or reserva.estado == 'disponible' %}
+                                    <button onclick="
+                                        document.getElementById('fechaSeleccionada').textContent = '{{ d|date:'D d/m' }}';
+                                        document.getElementById('horaSeleccionada').textContent = '{{ h|time:'H:i' }}';
+                                        document.getElementById('fechaInput').value = '{{ d|date:'Y-m-d' }}';
+                                        document.getElementById('horaInput').value = '{{ h|time:'H:i' }}';
+                                        document.getElementById('modalReserva').style.display = 'flex';
+                                    "
+                                       class="block w-full h-full p-2 font-semibold cursor-pointer"
+                                       aria-label="Reservar turno para el {{ d|date:'d/m' }} a las {{ h|time:'H:i' }}"
+                                       tabindex="0">
+                                        DISPONIBLE
+                                    </button>
+                                {% else %}
+                                    <a href="{% url 'detalle_reserva' reserva.id %}"
+                                       class="block w-full h-full p-2"
+                                       aria-label="Ver detalle de reserva para {{ reserva.jugador|default:reserva.grupo }} el {{ d|date:'d/m' }} a las {{ h|time:'H:i' }}">
+                                        <div class="font-bold">
+                                            {% if reserva.jugador %}
+                                                {{ reserva.jugador.nombre|truncatechars:10 }}
+                                            {% elif reserva.grupo %}
+                                                Grupo {{ reserva.grupo.id }}
+                                            {% else %}
+                                                Reservado
+                                            {% endif %}
+                                        </div>
+                                        <div class="text-xs">
+                                            ({{ reserva.get_estado_display }})
+                                        </div>
+                                    </a>
+                                {% endif %}
+                            </td>
+                        {% endif %}
+                    {% endwith %}
+                {% endwith %}
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+
+<!-- Modal para seleccionar cantidad de turnos -->
+<div id="modalReserva" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000;">
+  <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:white; padding:20px; border-radius:8px; width:300px;">
+    <h3>Reservar Turno</h3>
+    <p>Fecha: <span id="fechaSeleccionada"></span></p>
+    <p>Hora: <span id="horaSeleccionada"></span></p>
+    
+    <form id="formReserva">
+      <input type="hidden" id="fechaInput">
+      <input type="hidden" id="horaInput">
+      
+      <label>Cantidad de turnos:</label><br>
+      <select id="cantidadTurnos" style="width:100%; padding:5px; margin:10px 0;">
+        <option value="1">1 turno</option>
+        <option value="2">2 turnos</option>
+        <option value="3">3 turnos</option>
+        <option value="4">4 turnos</option>
+      </select><br>
+      
+      <button type="button" onclick="document.getElementById('modalReserva').style.display='none';" style="background:#ccc; padding:8px 16px; margin-right:10px;">Cancelar</button>
+      <button type="submit" style="background:#28a745; color:white; padding:8px 16px;">Reservar</button>
+    </form>
+  </div>
+</div>
+<script>
+// Filtro de cancha
+document.getElementById('cancha-select').addEventListener('change', function() {
+    this.form.submit();
+});
+
+// Manejar envío del formulario de reserva
+document.getElementById('formReserva').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const fecha = document.getElementById('fechaInput').value;
+    const hora = document.getElementById('horaInput').value;
+    const cantidad = document.getElementById('cantidadTurnos').value;
+    const url = `/club/reservas/reservar/${fecha}/${hora}/?cantidad_turnos=${cantidad}`;
+    window.location.href = url;
+});
+</script>
+{% endblock %}

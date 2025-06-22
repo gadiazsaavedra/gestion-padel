@@ -1,0 +1,149 @@
+{% extends 'club/base.html' %}
+{% block title %}Panel de Administración - Stock{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto p-4">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold">⚙️ Panel de Administración - Stock</h1>
+        <div class="flex gap-3">
+            <a href="{% url 'stock_ventas:pos_dashboard' %}" class="bg-blue-600 text-white px-4 py-2 rounded">
+                🛒 POS
+            </a>
+            <a href="{% url 'stock_ventas:dashboard_reportes' %}" class="bg-purple-600 text-white px-4 py-2 rounded">
+                📊 Reportes
+            </a>
+        </div>
+    </div>
+
+    <!-- Métricas Principales -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-blue-500 text-white">📦</div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Total Productos</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ total_productos }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-yellow-500 text-white">⚠️</div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Stock Bajo</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ productos_bajo_stock }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-red-500 text-white">🚫</div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Sin Stock</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ productos_sin_stock }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-orange-500 text-white">📋</div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Compras Pendientes</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ compras_pendientes }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accesos Rápidos -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <a href="{% url 'stock_ventas:gestionar_productos' %}" class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
+            <div class="text-center">
+                <div class="text-4xl mb-3">📦</div>
+                <h3 class="text-lg font-semibold mb-2">Gestionar Productos</h3>
+                <p class="text-gray-600 text-sm">Administrar inventario</p>
+            </div>
+        </a>
+
+        <a href="{% url 'stock_ventas:gestionar_compras' %}" class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
+            <div class="text-center">
+                <div class="text-4xl mb-3">🛒</div>
+                <h3 class="text-lg font-semibold mb-2">Gestionar Compras</h3>
+                <p class="text-gray-600 text-sm">Compras a proveedores</p>
+            </div>
+        </a>
+
+        <a href="{% url 'stock_ventas:alertas_stock' %}" class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
+            <div class="text-center">
+                <div class="text-4xl mb-3">🚨</div>
+                <h3 class="text-lg font-semibold mb-2">Alertas de Stock</h3>
+                <p class="text-gray-600 text-sm">Productos críticos</p>
+            </div>
+        </a>
+
+        <a href="{% url 'stock_ventas:historial_movimientos' %}" class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
+            <div class="text-center">
+                <div class="text-4xl mb-3">📋</div>
+                <h3 class="text-lg font-semibold mb-2">Historial</h3>
+                <p class="text-gray-600 text-sm">Movimientos de stock</p>
+            </div>
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Alertas de Stock -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">🚨 Alertas de Stock</h3>
+                <a href="{% url 'stock_ventas:alertas_stock' %}" class="text-blue-600 hover:text-blue-800">Ver todas</a>
+            </div>
+            <div class="space-y-3">
+                {% for producto in alertas_stock %}
+                <div class="flex justify-between items-center p-3 bg-red-50 rounded border border-red-200">
+                    <div>
+                        <div class="font-medium text-red-800">{{ producto.nombre }}</div>
+                        <div class="text-sm text-red-600">Stock: {{ producto.stock_actual }} | Mínimo: {{ producto.stock_minimo }}</div>
+                    </div>
+                    <a href="{% url 'stock_ventas:gestionar_productos' %}?q={{ producto.sku }}" 
+                       class="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700">
+                        Gestionar
+                    </a>
+                </div>
+                {% empty %}
+                <p class="text-gray-500 text-center py-4">No hay alertas de stock</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Movimientos Recientes -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">📋 Movimientos Recientes</h3>
+                <a href="{% url 'stock_ventas:historial_movimientos' %}" class="text-blue-600 hover:text-blue-800">Ver historial</a>
+            </div>
+            <div class="space-y-3">
+                {% for movimiento in movimientos_recientes %}
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                    <div>
+                        <div class="font-medium">{{ movimiento.producto.nombre }}</div>
+                        <div class="text-sm text-gray-600">
+                            {{ movimiento.get_tipo_display }}: {{ movimiento.cantidad }}
+                            {% if movimiento.cantidad > 0 %}+{% endif %}
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm text-gray-500">{{ movimiento.fecha|date:"d/m H:i" }}</div>
+                        <div class="text-xs text-gray-400">{{ movimiento.usuario.username }}</div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-gray-500 text-center py-4">No hay movimientos recientes</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

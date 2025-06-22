@@ -1,0 +1,37 @@
+{% extends 'club/base.html' %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">Detalle de Caja #{{ caja.id }}</h1>
+<p><b>Estado:</b> {% if caja.abierta %}<span class="text-green-600">Abierta</span>{% else %}<span class="text-red-600">Cerrada</span>{% endif %}</p>
+<p><b>Saldo inicial:</b> ${{ caja.saldo_inicial }}</p>
+<p><b>Saldo final:</b> {% if caja.saldo_final %}${{ caja.saldo_final }}{% else %}-{% endif %}</p>
+<p><b>Fecha apertura:</b> {{ caja.fecha_apertura|date:'d/m/Y H:i' }}</p>
+<p><b>Fecha cierre:</b> {{ caja.fecha_cierre|date:'d/m/Y H:i'|default:'-' }}</p>
+<p class="mb-4"><b>Responsable apertura:</b> {{ caja.usuario_apertura|default:'-' }}<br><b>Responsable cierre:</b> {{ caja.usuario_cierre|default:'-' }}</p>
+{% if caja.abierta %}
+    <a href="{% url 'bar:movimiento_caja_create' caja.id %}" class="bg-blue-600 text-white px-4 py-2 rounded mb-4 inline-block">Registrar movimiento</a>
+    <a href="{% url 'bar:caja_cerrar' caja.id %}" class="bg-red-600 text-white px-4 py-2 rounded mb-4 inline-block">Cerrar caja</a>
+{% endif %}
+<h2 class="text-xl font-bold mt-6 mb-2">Movimientos</h2>
+<table class="min-w-full bg-white rounded shadow">
+    <thead>
+        <tr>
+            <th class="px-4 py-2">Fecha</th>
+            <th class="px-4 py-2">Concepto</th>
+            <th class="px-4 py-2">Monto</th>
+            <th class="px-4 py-2">Usuario</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for mov in movimientos %}
+        <tr class="border-t">
+            <td class="px-4 py-2">{{ mov.fecha|date:'d/m/Y H:i' }}</td>
+            <td class="px-4 py-2">{{ mov.concepto }}</td>
+            <td class="px-4 py-2">${{ mov.monto }}</td>
+            <td class="px-4 py-2">{{ mov.usuario|default:'-' }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="text-center py-4">Sin movimientos.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

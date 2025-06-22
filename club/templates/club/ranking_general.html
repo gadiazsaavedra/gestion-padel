@@ -1,0 +1,27 @@
+{% extends 'club/base.html' %}
+{% block title %}Ranking General{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white rounded shadow p-8 mt-8">
+    <h1 class="text-2xl font-bold mb-6 text-blue-700">Ranking General</h1>
+    <table class="min-w-full">
+        <thead>
+            <tr class="bg-blue-100">
+                <th class="px-4 py-2">Posición</th>
+                <th class="px-4 py-2">Jugador</th>
+                <th class="px-4 py-2">Puntos</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in ranking %}
+            <tr>
+                <td class="px-4 py-2">{{ forloop.counter }}</td>
+                <td class="px-4 py-2">{{ r.jugador__nombre }} {{ r.jugador__apellido }}</td>
+                <td class="px-4 py-2">{{ r.total_puntos }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3">No hay datos de ranking.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends 'club/base.html' %}
+{% block title %}Eliminar Producto{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto bg-white p-6 rounded shadow">
+  <h2 class="text-2xl font-bold mb-4">¿Eliminar producto?</h2>
+  <p class="mb-4">¿Estás seguro de que deseas eliminar el producto <strong>{{ object.nombre }}</strong>?</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-bold">Eliminar</button>
+    <a href="{% url 'gestion_stock:producto_list' %}" class="ml-2 text-blue-600 hover:underline">Cancelar</a>
+  </form>
+</div>
+{% endblock %}

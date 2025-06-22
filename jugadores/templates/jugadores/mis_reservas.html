@@ -1,0 +1,208 @@
+{% extends 'club/base.html' %}
+{% block content %}
+{% csrf_token %}
+<div class="max-w-2xl mx-auto p-4">
+  <h1 class="text-2xl font-bold mb-4 text-green-700" tabindex="0">Mis Reservas</h1>
+
+  <h2 class="text-lg font-semibold mt-6 mb-2 text-green-800" id="proximas-reservas" tabindex="0">Próximas Reservas</h2>
+  {% if proximas_reservas %}
+    <div class="space-y-3 mb-6">
+      {% for reserva in proximas_reservas %}
+        <div class="bg-white rounded-lg shadow-sm p-4 border-l-4 
+                    {% if reserva.estado == 'ocupada' %}border-yellow-400{% elif reserva.estado == 'pagada' %}border-blue-400{% else %}border-gray-400{% endif %}">
+          <div class="flex justify-between items-start">
+            <div>
+              <h3 class="font-semibold text-lg">{{ reserva.fecha }} - {{ reserva.hora|time:'H:i' }}</h3>
+              <p class="text-sm text-gray-600">Estado: 
+                <span class="font-medium 
+                      {% if reserva.estado == 'ocupada' %}text-yellow-600{% elif reserva.estado == 'pagada' %}text-blue-600{% else %}text-gray-600{% endif %}">
+                  {{ reserva.get_estado_display }}
+                </span>
+              </p>
+              <p class="text-lg font-bold text-green-600 mt-1">${{ reserva.pago_total|floatformat:0 }}</p>
+            </div>
+            <div class="text-right space-y-2">
+              {% if reserva.estado == 'ocupada' %}
+                <div class="flex gap-2">
+                  <button onclick="abrirModalPago({{ reserva.id }}, '{{ reserva.fecha }}', '{{ reserva.hora|time:'H:i' }}', {{ reserva.pago_total|floatformat:0 }})"
+                          class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded font-semibold">
+                    💳 Pagar
+                  </button>
+                  <button onclick="cancelarReserva({{ reserva.id }}, '{{ reserva.fecha }}', '{{ reserva.hora|time:'H:i' }}')"
+                          class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded font-semibold">
+                    ❌ Cancelar
+                  </button>
+                </div>
+              {% elif reserva.estado == 'pagada' %}
+                <div class="flex flex-col gap-2">
+                  <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">
+                    ✅ Pagada
+                  </span>
+                  <button onclick="cancelarReserva({{ reserva.id }}, '{{ reserva.fecha }}', '{{ reserva.hora|time:'H:i' }}')"
+                          class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm font-semibold">
+                    ❌ Cancelar
+                  </button>
+                </div>
+              {% elif reserva.estado == 'cancelada' %}
+                <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-semibold">
+                  ❌ Cancelada
+                </span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-gray-500">No tienes reservas próximas.</p>
+  {% endif %}
+
+  <h2 class="text-lg font-semibold mt-6 mb-2 text-gray-700" id="reservas-pasadas" tabindex="0">Reservas Pasadas</h2>
+  {% if reservas_pasadas %}
+    <ul class="divide-y divide-gray-100 bg-gray-50 rounded-lg shadow-sm" role="list" aria-labelledby="reservas-pasadas">
+      {% for reserva in reservas_pasadas %}
+        <li class="py-2 px-3 flex flex-col sm:flex-row sm:justify-between focus-within:bg-gray-100" tabindex="0">
+          <span>{{ reserva.fecha }} - {{ reserva.hora|time:'H:i' }}</span>
+          <span class="text-xs text-gray-500">Estado: {{ reserva.get_estado_display }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-gray-400">No tienes reservas pasadas.</p>
+  {% endif %}
+</div>
+
+<!-- Modal de Pago -->
+<div id="modalPago" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000;">
+  <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:white; padding:30px; border-radius:12px; width:400px; max-width:90%;">
+    <h3 class="text-xl font-bold mb-4 text-center">💳 Pagar Reserva</h3>
+    
+    <div class="bg-gray-50 p-4 rounded-lg mb-4">
+      <p><strong>Fecha:</strong> <span id="pagoFecha"></span></p>
+      <p><strong>Hora:</strong> <span id="pagoHora"></span></p>
+      <p class="text-xl font-bold text-green-600 mt-2">Total: $<span id="pagoMonto"></span></p>
+    </div>
+    
+    <form id="formPago">
+      <input type="hidden" id="reservaId">
+      
+      <div class="mb-4">
+        <label class="block text-sm font-semibold mb-2">Método de Pago:</label>
+        <div class="space-y-2">
+          <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+            <input type="radio" name="metodo_pago" value="efectivo" class="mr-3" checked>
+            <span class="text-lg">💰 Efectivo (pagar en recepción)</span>
+          </label>
+          <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+            <input type="radio" name="metodo_pago" value="mercadopago" class="mr-3">
+            <span class="text-lg">📱 MercadoPago (link de pago)</span>
+          </label>
+        </div>
+      </div>
+      
+      <div class="flex gap-3 mt-6">
+        <button type="button" onclick="cerrarModalPago()" 
+                class="flex-1 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+          Cancelar
+        </button>
+        <button type="submit" 
+                class="flex-1 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 font-semibold">
+          Confirmar Pago
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function abrirModalPago(reservaId, fecha, hora, monto) {
+    document.getElementById('reservaId').value = reservaId;
+    document.getElementById('pagoFecha').textContent = fecha;
+    document.getElementById('pagoHora').textContent = hora;
+    document.getElementById('pagoMonto').textContent = monto;
+    document.getElementById('modalPago').style.display = 'flex';
+}
+
+function cerrarModalPago() {
+    document.getElementById('modalPago').style.display = 'none';
+}
+
+document.getElementById('formPago').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const reservaId = document.getElementById('reservaId').value;
+    const metodo = document.querySelector('input[name="metodo_pago"]:checked').value;
+    
+    // Enviar solicitud de pago
+    fetch('/club/jugadores/procesar-pago/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({
+            reserva_id: reservaId,
+            metodo_pago: metodo
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('✅ Solicitud de pago enviada correctamente');
+            location.reload();
+        } else {
+            alert('❌ Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        alert('❌ Error de conexión');
+    });
+    
+    cerrarModalPago();
+});
+
+// Función para cancelar reservas
+function cancelarReserva(reservaId, fecha, hora) {
+    // Calcular horas restantes para mostrar política
+    const ahora = new Date();
+    const fechaReserva = new Date(fecha + ' ' + hora);
+    const horasRestantes = (fechaReserva - ahora) / (1000 * 60 * 60);
+    
+    let mensaje = `¿Estás seguro de cancelar la reserva del ${fecha} a las ${hora}?\n\n`;
+    
+    if (horasRestantes < 2) {
+        alert('❌ No se puede cancelar con menos de 2 horas de anticipación');
+        return;
+    } else if (horasRestantes < 24) {
+        mensaje += '⚠️ Cancelación el mismo día: Reembolso del 50%';
+    } else {
+        mensaje += '✅ Cancelación con anticipación: Reembolso del 100%';
+    }
+    
+    if (!confirm(mensaje)) return;
+    
+    fetch('/club/jugadores/cancelar-reserva/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({
+            reserva_id: reservaId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('✅ ' + data.message);
+            location.reload();
+        } else {
+            alert('❌ Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        alert('❌ Error de conexión');
+    });
+}
+</script>
+{% endblock %}

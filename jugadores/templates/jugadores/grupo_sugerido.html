@@ -1,0 +1,13 @@
+<!-- filepath: jugadores/templates/jugadores/grupo_sugerido.html -->
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-md mx-auto mt-8 p-6 bg-white rounded shadow">
+  <h2 class="text-xl font-bold mb-4">Grupo sugerido</h2>
+  <ul>
+    {% for jugador in grupo %}
+      <li class="mb-2">{{ jugador.nombre }} {{ jugador.apellido }} ({{ jugador.nivel }}, {{ jugador.genero }})</li>
+    {% endfor %}
+  </ul>
+  <a href="{% url 'sugerir_grupo' %}" class="mt-4 inline-block text-blue-600 hover:underline">Buscar otro grupo</a>
+</div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends 'club/base.html' %}
+{% block title %}Cerrar Caja{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto mt-10">
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-2xl font-bold text-center mb-6">🔒 Cerrar Caja</h2>
+        
+        <div class="bg-blue-50 border border-blue-200 rounded p-4 mb-6">
+            <h3 class="font-semibold mb-2">📊 Resumen de Caja</h3>
+            <div class="space-y-1 text-sm">
+                <div class="flex justify-between">
+                    <span>Saldo Inicial:</span>
+                    <span>${{ caja.saldo_inicial }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Total Ventas:</span>
+                    <span>${{ caja.total_ventas }}</span>
+                </div>
+                <div class="flex justify-between font-bold border-t pt-1">
+                    <span>Saldo Teórico:</span>
+                    <span>${{ saldo_teorico }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    💰 Saldo Final (Conteo Real)
+                </label>
+                <input type="number" name="saldo_final" step="0.01" min="0" 
+                       class="w-full p-3 border rounded-lg" placeholder="0.00" required>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    📝 Observaciones de Cierre
+                </label>
+                <textarea name="observaciones" rows="3" 
+                          class="w-full p-3 border rounded-lg" 
+                          placeholder="Observaciones del cierre..."></textarea>
+            </div>
+            
+            <div class="flex gap-3">
+                <a href="{% url 'stock_ventas:pos_dashboard' %}" 
+                   class="flex-1 bg-gray-500 text-white py-3 rounded-lg font-semibold hover:bg-gray-600 text-center">
+                    Cancelar
+                </a>
+                <button type="submit" 
+                        class="flex-1 bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700">
+                    🔒 Cerrar Caja
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends 'club/base.html' %}
+{% block title %}Emparejador de Jugadores - Notificación{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white rounded shadow p-8 mt-8">
+    <h1 class="text-2xl font-bold mb-6 text-center">Emparejador de Jugadores</h1>
+    <form method="post" class="mb-6 flex flex-col md:flex-row gap-4 items-center justify-center">
+        {% csrf_token %}
+        <label class="font-semibold">Método de notificación:
+            <select name="metodo" class="border rounded p-2 ml-2">
+                <option value="email">Email</option>
+                <option value="panel">Notificación interna</option>
+                <option value="whatsapp">WhatsApp (requiere integración)</option>
+            </select>
+        </label>
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded font-bold">Ejecutar emparejador</button>
+    </form>
+    {% if resultado %}
+        <h2 class="text-lg font-bold mb-2">Matches encontrados y notificados:</h2>
+        <ul class="divide-y">
+            {% for match in resultado %}
+            <li class="py-2">
+                <strong>{{ match.dia|capfirst }} {{ match.hora_inicio }}-{{ match.hora_fin }}</strong> | Nivel: {{ match.nivel }} | Género: {{ match.genero }}<br>
+                Jugadores:
+                <ul class="list-disc ml-6">
+                    {% for j in match.jugadores %}
+                        <li>{{ j.nombre }} {{ j.apellido }} ({{ j.telefono }})</li>
+                    {% endfor %}
+                </ul>
+            </li>
+            {% endfor %}
+            {% if resultado|length == 0 %}
+            <li class="py-2 text-gray-500">No se encontraron matches para notificar.</li>
+            {% endif %}
+        </ul>
+    {% endif %}
+</div>
+{% endblock %}

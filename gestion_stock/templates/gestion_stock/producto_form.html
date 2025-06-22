@@ -1,0 +1,25 @@
+{% extends 'club/base.html' %}
+{% block title %}{{ form.instance.pk|yesno:'Editar Producto,Nuevo Producto' }}{% endblock %}
+{% block content %}
+<div class="max-w-xl mx-auto bg-white p-6 rounded shadow">
+  <h2 class="text-2xl font-bold mb-4">{{ form.instance.pk|yesno:'Editar Producto,Nuevo Producto' }}</h2>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {% for field in form %}
+      <div class="mb-4">
+        <label class="block font-semibold mb-1" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.help_text %}
+          <p class="text-xs text-gray-500">{{ field.help_text }}</p>
+        {% endif %}
+        {% for error in field.errors %}
+          <p class="text-sm text-red-600">{{ error }}</p>
+        {% endfor %}
+      </div>
+    {% endfor %}
+    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-bold">Guardar</button>
+    <a href="{% url 'gestion_stock:producto_list' %}" class="ml-2 text-blue-600 hover:underline">Cancelar</a>
+  </form>
+</div>
+{% endblock %}

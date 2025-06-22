@@ -1,0 +1,11 @@
+body {
+  background: linear-gradient(135deg, #e0f2fe 0%, #bbf7d0 100%);
+}
+input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px #2563eb33;
+}
+button:active {
+  transform: scale(0.98);
+}

@@ -1,0 +1,119 @@
+{% extends 'club/base.html' %}
+{% block content %}
+<div class="max-w-4xl mx-auto p-4">
+  <h1 class="text-3xl font-bold mb-6 text-yellow-600">🔔 Mis Notificaciones</h1>
+  
+  <!-- Estadísticas -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white rounded-lg shadow p-4 border-l-4 border-blue-500">
+      <div class="text-2xl font-bold text-blue-600">{{ estadisticas.total }}</div>
+      <div class="text-gray-600 text-sm">Total</div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-4 border-l-4 border-red-500">
+      <div class="text-2xl font-bold text-red-600">{{ estadisticas.no_leidas }}</div>
+      <div class="text-gray-600 text-sm">No Leídas</div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-4 border-l-4 border-green-500">
+      <div class="text-2xl font-bold text-green-600">{{ estadisticas.pagos }}</div>
+      <div class="text-gray-600 text-sm">Pagos</div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-4 border-l-4 border-purple-500">
+      <div class="text-2xl font-bold text-purple-600">{{ estadisticas.reservas }}</div>
+      <div class="text-gray-600 text-sm">Reservas</div>
+    </div>
+  </div>
+  
+  <!-- Filtros -->
+  <div class="bg-white rounded-lg shadow p-4 mb-6">
+    <form method="get" class="flex flex-wrap gap-4 items-end">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Estado:</label>
+        <select name="filtro" class="border rounded px-3 py-2">
+          <option value="todas" {% if filtro_actual == 'todas' %}selected{% endif %}>Todas</option>
+          <option value="no_leidas" {% if filtro_actual == 'no_leidas' %}selected{% endif %}>No Leídas</option>
+          <option value="leidas" {% if filtro_actual == 'leidas' %}selected{% endif %}>Leídas</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Categoría:</label>
+        <select name="categoria" class="border rounded px-3 py-2">
+          <option value="todas" {% if categoria_actual == 'todas' %}selected{% endif %}>Todas</option>
+          <option value="pago" {% if categoria_actual == 'pago' %}selected{% endif %}>Pagos</option>
+          <option value="reserva" {% if categoria_actual == 'reserva' %}selected{% endif %}>Reservas</option>
+          <option value="sistema" {% if categoria_actual == 'sistema' %}selected{% endif %}>Sistema</option>
+        </select>
+      </div>
+      <div>
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-semibold">
+          Filtrar
+        </button>
+      </div>
+      <div class="ml-auto">
+        {% if estadisticas.no_leidas > 0 %}
+          <form method="post" action="{% url 'jugadores:marcar_todas_notificaciones_leidas' %}" class="inline">
+            {% csrf_token %}
+            <button type="submit" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded font-semibold">
+              ✓ Marcar Todas Leídas
+            </button>
+          </form>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+  <!-- Lista de Notificaciones -->
+  <div class="bg-white rounded-lg shadow">
+    {% if notificaciones %}
+      <div class="divide-y divide-gray-200">
+        {% for n in notificaciones %}
+          <div class="p-4 {% if not n.leida %}bg-yellow-50 border-l-4 border-yellow-400{% else %}hover:bg-gray-50{% endif %}">
+            <div class="flex items-start justify-between">
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-2">
+                  {% if 'pago' in n.mensaje or 'confirmado' in n.mensaje %}
+                    <span class="text-green-500 text-lg">💳</span>
+                  {% elif 'cancelada' in n.mensaje %}
+                    <span class="text-red-500 text-lg">❌</span>
+                  {% elif 'reserva' in n.mensaje %}
+                    <span class="text-blue-500 text-lg">🎾</span>
+                  {% else %}
+                    <span class="text-gray-500 text-lg">🔔</span>
+                  {% endif %}
+                  
+                  {% if not n.leida %}
+                    <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-semibold">NUEVO</span>
+                  {% endif %}
+                </div>
+                
+                <p class="text-gray-800 font-medium mb-1">{{ n.mensaje }}</p>
+                <p class="text-sm text-gray-500">
+                  🕰️ {{ n.fecha_creacion|date:'d/m/Y H:i' }}
+                </p>
+              </div>
+              
+              <div class="flex flex-col items-end gap-2 ml-4">
+                {% if not n.leida %}
+                  <form method="post" action="{% url 'jugadores:marcar_notificacion_leida' n.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm font-semibold">
+                      ✓ Marcar Leída
+                    </button>
+                  </form>
+                {% else %}
+                  <span class="text-gray-400 text-sm">✓ Leída</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="p-8 text-center text-gray-500">
+        <div class="text-4xl mb-4">🔔</div>
+        <p class="text-lg font-medium mb-2">No hay notificaciones</p>
+        <p class="text-sm">Cuando tengas nuevas notificaciones aparecerán aquí.</p>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

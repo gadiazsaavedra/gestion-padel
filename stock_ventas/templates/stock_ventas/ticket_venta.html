@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Ticket de Venta #{{ venta.id }}</title>
+    <style>
+        @media print {
+            body { margin: 0; }
+            .no-print { display: none; }
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.2;
+            max-width: 300px;
+            margin: 0 auto;
+            padding: 10px;
+        }
+        
+        .header {
+            text-align: center;
+            border-bottom: 1px dashed #000;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .club-name {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .info-line {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2px;
+        }
+        
+        .items {
+            border-bottom: 1px dashed #000;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .item {
+            margin-bottom: 5px;
+        }
+        
+        .item-name {
+            font-weight: bold;
+        }
+        
+        .item-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+        }
+        
+        .totals {
+            border-bottom: 1px dashed #000;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .total-line {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2px;
+        }
+        
+        .total-final {
+            font-weight: bold;
+            font-size: 14px;
+            border-top: 1px solid #000;
+            padding-top: 5px;
+            margin-top: 5px;
+        }
+        
+        .footer {
+            text-align: center;
+            font-size: 10px;
+            margin-top: 15px;
+        }
+        
+        .no-print {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .print-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <button class="print-btn" onclick="window.print()">🖨️ Imprimir</button>
+        <button class="print-btn" onclick="window.close()" style="background: #6c757d;">❌ Cerrar</button>
+    </div>
+
+    <div class="header">
+        <div class="club-name">CLUB DE PADEL</div>
+        <div>Av. Principal 123</div>
+        <div>Tel: (011) 1234-5678</div>
+        <div>CUIT: 20-12345678-9</div>
+    </div>
+
+    <div class="info-line">
+        <span>Ticket #:</span>
+        <span>{{ venta.id }}</span>
+    </div>
+    
+    <div class="info-line">
+        <span>Fecha:</span>
+        <span>{{ venta.fecha|date:"d/m/Y H:i" }}</span>
+    </div>
+    
+    <div class="info-line">
+        <span>Cajero:</span>
+        <span>{{ venta.usuario.first_name|default:venta.usuario.username }}</span>
+    </div>
+    
+    {% if venta.cliente %}
+    <div class="info-line">
+        <span>Cliente:</span>
+        <span>{{ venta.cliente.nombre }}</span>
+    </div>
+    {% endif %}
+    
+    <div class="info-line">
+        <span>Pago:</span>
+        <span>{{ venta.get_metodo_pago_display }}</span>
+    </div>
+
+    <div class="items">
+        {% for detalle in detalles %}
+        <div class="item">
+            <div class="item-name">{{ detalle.producto.nombre }}</div>
+            <div class="item-details">
+                <span>{{ detalle.cantidad }} x ${{ detalle.precio_unitario }}</span>
+                <span>${{ detalle.subtotal }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="totals">
+        <div class="total-line">
+            <span>Subtotal:</span>
+            <span>${{ venta.total|add:venta.descuento_aplicado }}</span>
+        </div>
+        
+        {% if venta.descuento_aplicado > 0 %}
+        <div class="total-line">
+            <span>Descuento:</span>
+            <span>-${{ venta.descuento_aplicado }}</span>
+        </div>
+        {% endif %}
+        
+        <div class="total-line total-final">
+            <span>TOTAL:</span>
+            <span>${{ venta.total }}</span>
+        </div>
+    </div>
+
+    {% if venta.cliente and venta.puntos_otorgados > 0 %}
+    <div class="info-line">
+        <span>Puntos ganados:</span>
+        <span>{{ venta.puntos_otorgados }}</span>
+    </div>
+    {% endif %}
+
+    <div class="footer">
+        <div>¡Gracias por su compra!</div>
+        <div>Conserve este ticket</div>
+        <div>{{ fecha_impresion|date:"d/m/Y H:i" }}</div>
+    </div>
+
+    <script>
+        // Auto-imprimir al cargar (opcional)
+        // window.onload = function() { window.print(); }
+    </script>
+</body>
+</html>

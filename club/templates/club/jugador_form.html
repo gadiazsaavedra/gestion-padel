@@ -1,0 +1,133 @@
+{% extends 'club/base.html' %}
+{% block title %}Nuevo Jugador{% endblock %}
+{% block content %}
+<div class="w-full max-w-lg bg-white rounded shadow p-8 mx-auto">
+    <h1 class="text-2xl font-bold mb-6 text-center">
+        {% if perfil %}Editar mi perfil{% elif editar %}Editar Jugador{% else %}Nuevo Jugador{% endif %}
+    </h1>
+    <form method="post" class="space-y-4" id="jugador-form">
+        {% csrf_token %}
+        <!-- Campos principales siempre visibles -->
+        <div id="field-nombre">
+            <label for="id_nombre" class="block text-gray-700 font-semibold mb-1">Nombre</label>
+            {{ form.nombre }}
+            {% for error in form.nombre.errors %}
+                <p class="text-xs text-red-500">{{ error }}</p>
+            {% endfor %}
+        </div>
+        <div id="field-apellido">
+            <label for="id_apellido" class="block text-gray-700 font-semibold mb-1">Apellido</label>
+            {{ form.apellido }}
+            {% for error in form.apellido.errors %}
+                <p class="text-xs text-red-500">{{ error }}</p>
+            {% endfor %}
+        </div>
+        <div id="field-email">
+            <label for="id_email" class="block text-gray-700 font-semibold mb-1">Email</label>
+            {{ form.email }}
+            {% for error in form.email.errors %}
+                <p class="text-xs text-red-500">{{ error }}</p>
+            {% endfor %}
+        </div>
+        <div id="field-telefono">
+            <label for="id_telefono" class="block text-gray-700 font-semibold mb-1">Teléfono</label>
+            {{ form.telefono }}
+            {% for error in form.telefono.errors %}
+                <p class="text-xs text-red-500">{{ error }}</p>
+            {% endfor %}
+        </div>
+        <!-- Resto de los campos -->
+        {% for field in form %}
+            {% if field.name not in 'nombre apellido email telefono' %}
+                <div id="field-{{ field.name }}">
+                    <label class="block text-gray-700 font-semibold mb-1">{{ field.label }}</label>
+                    {% if field.name == 'disponibilidad' %}
+                        <div id="disponibilidad-widget" class="mb-2">
+                            <p class="text-sm text-gray-600 mb-1">Selecciona los días y horarios disponibles:</p>
+                            <div class="grid grid-cols-2 gap-2 mb-2">
+                                {% for dia in dias %}
+                                    <div>
+                                        <label class="font-semibold">{{ dia|capfirst }}</label>
+                                        <select multiple class="disponibilidad-horas w-full border rounded p-1 mt-1" data-dia="{{ dia }}">
+                                            {% for hora in horas %}
+                                                <option value="{{ hora }}">{{ hora }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <input type="hidden" name="disponibilidad" id="id_disponibilidad" />
+                            <p class="text-xs text-gray-500">Puedes seleccionar varios horarios por día. El campo se llenará automáticamente.</p>
+                            <div id="disponibilidad-error" class="text-xs text-red-500"></div>
+                        </div>
+                    {% else %}
+                        {{ field }}
+                    {% endif %}
+                    {% if field.help_text %}
+                        <p class="text-xs text-gray-500">{{ field.help_text }}</p>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <p class="text-xs text-red-500">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endfor %}
+        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Guardar</button>
+        <a href="{% url 'jugadores:list' %}" class="block text-center text-blue-600 mt-4">Volver a la lista</a>
+    </form>
+</div>
+<script>
+// Widget de disponibilidad: genera JSON automáticamente
+function actualizarDisponibilidadJSON() {
+    const dias = {{ dias|safe }};
+    let disponibilidad = {};
+    let hayAlMenosUno = false;
+    dias.forEach(dia => {
+        const select = document.querySelector(`select[data-dia='${dia}']`);
+        const horas = Array.from(select.selectedOptions).map(opt => opt.value);
+        if (horas.length > 0) {
+            disponibilidad[dia] = horas;
+            hayAlMenosUno = true;
+        }
+    });
+    document.getElementById('id_disponibilidad').value = hayAlMenosUno ? JSON.stringify(disponibilidad) : '';
+}
+
+document.querySelectorAll('.disponibilidad-horas').forEach(sel => {
+    sel.addEventListener('change', actualizarDisponibilidadJSON);
+});
+
+// Habilita/deshabilita la disponibilidad según el check en_tinder
+function toggleDisponibilidadWidget() {
+    const check = document.getElementById('id_en_tinder');
+    const widget = document.getElementById('disponibilidad-widget');
+    const selects = widget.querySelectorAll('select');
+    if (check && widget) {
+        widget.style.opacity = check.checked ? '1' : '0.5';
+        selects.forEach(sel => sel.disabled = !check.checked);
+    }
+}
+const checkTinder = document.getElementById('id_en_tinder');
+if (checkTinder) {
+    checkTinder.addEventListener('change', toggleDisponibilidadWidget);
+    toggleDisponibilidadWidget();
+}
+
+// Validación antes de enviar
+const form = document.getElementById('jugador-form');
+form.addEventListener('submit', function(e) {
+    actualizarDisponibilidadJSON();
+    const check = document.getElementById('id_en_tinder');
+    const val = document.getElementById('id_disponibilidad').value;
+    let errorDiv = document.getElementById('disponibilidad-error');
+    if (check && check.checked && !val) {
+        e.preventDefault();
+        errorDiv.textContent = 'Selecciona al menos un día y horario disponible.';
+    } else {
+        errorDiv.textContent = '';
+    }
+});
+// Inicializa por si hay datos previos (edición)
+actualizarDisponibilidadJSON();
+</script>
+{% endblock %}

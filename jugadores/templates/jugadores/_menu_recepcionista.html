@@ -1,0 +1,32 @@
+{# Menú para usuario recepcionista - acceso rápido a todas las funciones relevantes #}
+<nav class="mb-6">
+  <ul class="flex flex-col gap-2 md:flex-row md:gap-4 text-base">
+    <li>
+      <a href="{% url 'recepcionista:dashboard' %}" class="font-semibold text-blue-700 hover:underline">Panel principal</a>
+    </li>
+    <li>
+      <a href="{% url 'recepcionista:emparejador' %}" class="text-blue-700 hover:underline">Emparejador</a>
+    </li>
+    <li>
+      <a href="{% url 'recepcionista:notificaciones' %}" class="text-blue-700 hover:underline">Notificaciones</a>
+    </li>
+    <li>
+      <a href="{% url 'recepcionista:gestion_reservas' %}" class="text-blue-700 hover:underline">Reservas</a>
+    </li>
+    <li>
+      <a href="{% url 'recepcionista:pagos' %}" class="text-blue-700 hover:underline font-semibold">💳 Pagos</a>
+    </li>
+    <li>
+      <a href="{% url 'recepcionista:gestion_stock' %}" class="text-blue-700 hover:underline">Stock/Bar</a>
+    </li>
+    <li>
+      <a href="{% url 'recepcionista:ventas' %}" class="text-blue-700 hover:underline">Ventas</a>
+    </li>
+    <li>
+      <a href="{% url 'recepcionista:reportes' %}" class="text-blue-700 hover:underline">Reportes</a>
+    </li>
+    <li>
+      <a href="{% url 'recepcionista:soporte' %}" class="text-blue-700 hover:underline">Soporte</a>
+    </li>
+  </ul>
+</nav>

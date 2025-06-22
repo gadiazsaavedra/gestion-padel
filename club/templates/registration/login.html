@@ -1,0 +1,55 @@
+{% extends 'club/base.html' %}
+{% load static %}
+{% block title %}Iniciar sesión{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/login.css' %}">
+{% endblock %}
+{% block content %}
+<div class="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 to-green-100">
+  <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-2xl">
+    <div class="flex flex-col items-center mb-4">
+      <img src="{% static 'img/logo_padel.png' %}" alt="Logo Club de Pádel" class="w-20 h-20 mb-2">
+      <h2 class="text-2xl font-extrabold text-blue-700">Acceso al Club de Pádel</h2>
+      <p class="text-gray-500 text-sm">Por favor, ingresa tus credenciales</p>
+    </div>
+    {% if form.errors %}
+      <div class="mb-4 text-red-600 text-sm text-center">
+        Usuario o contraseña incorrectos.
+      </div>
+    {% endif %}
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      <div>
+        <label for="id_username" class="block text-sm font-medium text-gray-700">Usuario</label>
+        {{ form.username }}
+      </div>
+      <div class="relative">
+        <label for="id_password" class="block text-sm font-medium text-gray-700">Contraseña</label>
+        {{ form.password }}
+        <span class="absolute right-3 top-9 cursor-pointer" onclick="togglePassword()">
+          <i id="eye-icon" class="fa fa-eye text-gray-400"></i>
+        </span>
+      </div>
+      <button type="submit" class="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">Entrar</button>
+    </form>
+    <div class="text-center mt-4">
+      <a href="{% url 'password_reset' %}" class="text-blue-600 hover:underline text-sm">¿Olvidaste tu contraseña?</a>
+    </div>
+  </div>
+</div>
+<script>
+function togglePassword() {
+  const input = document.getElementById('id_password');
+  const icon = document.getElementById('eye-icon');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.classList.remove('fa-eye');
+    icon.classList.add('fa-eye-slash');
+  } else {
+    input.type = 'password';
+    icon.classList.remove('fa-eye-slash');
+    icon.classList.add('fa-eye');
+  }
+}
+</script>
+{% endblock %}

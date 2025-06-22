@@ -1,0 +1,37 @@
+{% extends 'club/base.html' %}
+{% block title %}Productos{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto bg-white p-6 rounded shadow">
+  <h2 class="text-2xl font-bold mb-4">Productos en Stock</h2>
+  <a href="{% url 'gestion_stock:producto_create' %}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 font-bold mb-4 inline-block">+ Nuevo Producto</a>
+  <table class="min-w-full mt-4 border text-sm">
+    <thead>
+      <tr class="bg-gray-100">
+        <th class="px-3 py-2 border">Nombre</th>
+        <th class="px-3 py-2 border">Categoría</th>
+        <th class="px-3 py-2 border">Stock</th>
+        <th class="px-3 py-2 border">Precio Venta</th>
+        <th class="px-3 py-2 border">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for producto in productos %}
+      <tr>
+        <td class="px-3 py-2 border">{{ producto.nombre }}</td>
+        <td class="px-3 py-2 border">{{ producto.categoria }}</td>
+        <td class="px-3 py-2 border">{{ producto.stock_actual }}</td>
+        <td class="px-3 py-2 border">${{ producto.precio_venta }}</td>
+        <td class="px-3 py-2 border">
+          <a href="{% url 'gestion_stock:producto_update' producto.pk %}" class="text-blue-600 hover:underline font-bold">Editar</a>
+          <a href="{% url 'gestion_stock:producto_delete' producto.pk %}" class="text-red-600 hover:underline font-bold ml-2">Eliminar</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="5" class="text-center py-4">No hay productos cargados.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

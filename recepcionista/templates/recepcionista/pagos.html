@@ -1,0 +1,157 @@
+{% extends 'club/base.html' %}
+{% block content %}
+{% csrf_token %}
+<div class="max-w-6xl mx-auto p-4">
+  <h1 class="text-3xl font-bold mb-6 text-blue-700">💳 Gestión de Pagos</h1>
+  
+  <!-- Resumen -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <div class="bg-yellow-100 p-4 rounded-lg border-l-4 border-yellow-500">
+      <h3 class="font-semibold text-yellow-800">Pagos Pendientes</h3>
+      <p class="text-2xl font-bold text-yellow-600">{{ pagos_pendientes|length }}</p>
+    </div>
+    <div class="bg-green-100 p-4 rounded-lg border-l-4 border-green-500">
+      <h3 class="font-semibold text-green-800">Total Pendiente</h3>
+      <p class="text-2xl font-bold text-green-600">
+        ${% for pago in pagos_pendientes %}{{ pago.monto|add:0 }}{% if not forloop.last %}+{% endif %}{% empty %}0{% endfor %}
+      </p>
+    </div>
+    <div class="bg-blue-100 p-4 rounded-lg border-l-4 border-blue-500">
+      <h3 class="font-semibold text-blue-800">Procesados Hoy</h3>
+      <p class="text-2xl font-bold text-blue-600">{{ pagos_recientes|length }}</p>
+    </div>
+  </div>
+
+  <!-- Pagos Pendientes -->
+  <div class="bg-white rounded-lg shadow-lg mb-6">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h2 class="text-xl font-semibold text-gray-800">⏳ Pagos Pendientes de Confirmación</h2>
+    </div>
+    <div class="p-6">
+      {% if pagos_pendientes %}
+        <div class="space-y-4">
+          {% for pago in pagos_pendientes %}
+            <div class="border rounded-lg p-4 bg-yellow-50 border-yellow-200">
+              <div class="flex justify-between items-start">
+                <div class="flex-1">
+                  <div class="flex items-center gap-4 mb-2">
+                    <h3 class="font-semibold text-lg">{{ pago.jugador.nombre }} {{ pago.jugador.apellido }}</h3>
+                    <span class="bg-yellow-500 text-white px-2 py-1 rounded text-sm font-semibold">
+                      {{ pago.get_estado_display }}
+                    </span>
+                  </div>
+                  
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    <div>
+                      <p class="text-gray-600">Monto:</p>
+                      <p class="font-bold text-xl text-green-600">${{ pago.monto }}</p>
+                    </div>
+                    <div>
+                      <p class="text-gray-600">Método:</p>
+                      <p class="font-semibold">
+                        {% if pago.metodo == 'efectivo' %}💰 Efectivo{% else %}📱 MercadoPago{% endif %}
+                      </p>
+                    </div>
+                    <div>
+                      <p class="text-gray-600">Fecha:</p>
+                      <p class="font-semibold">{{ pago.fecha }}</p>
+                    </div>
+                  </div>
+                  
+                  {% if pago.observaciones %}
+                    <div class="mt-2">
+                      <p class="text-gray-600 text-sm">Detalle:</p>
+                      <p class="text-sm bg-gray-100 p-2 rounded">{{ pago.observaciones }}</p>
+                    </div>
+                  {% endif %}
+                </div>
+                
+                <div class="flex gap-2 ml-4">
+                  <button onclick="confirmarPago({{ pago.id }}, 'confirmar')"
+                          class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded font-semibold">
+                    ✅ Confirmar
+                  </button>
+                  <button onclick="confirmarPago({{ pago.id }}, 'rechazar')"
+                          class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded font-semibold">
+                    ❌ Rechazar
+                  </button>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="text-center py-8 text-gray-500">
+          <p class="text-lg">🎉 No hay pagos pendientes</p>
+          <p>Todos los pagos están al día</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Pagos Recientes -->
+  <div class="bg-white rounded-lg shadow-lg">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h2 class="text-xl font-semibold text-gray-800">📋 Pagos Procesados Recientemente</h2>
+    </div>
+    <div class="p-6">
+      {% if pagos_recientes %}
+        <div class="space-y-3">
+          {% for pago in pagos_recientes %}
+            <div class="flex justify-between items-center p-3 border rounded-lg
+                        {% if pago.estado == 'pagado' %}bg-green-50 border-green-200{% else %}bg-red-50 border-red-200{% endif %}">
+              <div class="flex items-center gap-4">
+                <span class="{% if pago.estado == 'pagado' %}text-green-600{% else %}text-red-600{% endif %} text-xl">
+                  {% if pago.estado == 'pagado' %}✅{% else %}❌{% endif %}
+                </span>
+                <div>
+                  <p class="font-semibold">{{ pago.jugador.nombre }} {{ pago.jugador.apellido }}</p>
+                  <p class="text-sm text-gray-600">{{ pago.fecha }} - ${{ pago.monto }}</p>
+                </div>
+              </div>
+              <span class="px-3 py-1 rounded text-sm font-semibold
+                           {% if pago.estado == 'pagado' %}bg-green-200 text-green-800{% else %}bg-red-200 text-red-800{% endif %}">
+                {{ pago.get_estado_display }}
+              </span>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-gray-500 text-center py-4">No hay pagos procesados recientemente</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+function confirmarPago(pagoId, accion) {
+    const mensaje = accion === 'confirmar' ? '¿Confirmar este pago?' : '¿Rechazar este pago?';
+    
+    if (!confirm(mensaje)) return;
+    
+    fetch('/club/recepcionista/confirmar-pago/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({
+            pago_id: pagoId,
+            accion: accion
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('✅ ' + data.message);
+            location.reload();
+        } else {
+            alert('❌ Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        alert('❌ Error de conexión');
+    });
+}
+</script>
+{% endblock %}

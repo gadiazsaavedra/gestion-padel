@@ -1,0 +1,436 @@
+{% extends 'club/base.html' %}
+{% block title %}POS - Punto de Venta{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto p-4">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">🛒 Punto de Venta</h1>
+        <div class="flex gap-3">
+            <span class="bg-green-100 text-green-800 px-3 py-1 rounded">
+                Caja #{{ caja.id }} - ${{ caja.saldo_inicial }}
+            </span>
+            <a href="{% url 'stock_ventas:historial_ventas' %}" class="bg-blue-600 text-white px-4 py-2 rounded">
+                📋 Historial
+            </a>
+            <a href="{% url 'stock_ventas:dashboard_reportes' %}" class="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 font-semibold">
+                📊 Reportes
+            </a>
+            {% if user.is_staff %}
+            <a href="{% url 'stock_ventas:dashboard_admin' %}" class="bg-slate-700 text-white px-4 py-2 rounded hover:bg-slate-800">
+                ⚙️ Admin
+            </a>
+            {% endif %}
+            <a href="{% url 'stock_ventas:cerrar_caja' %}" class="bg-red-600 text-white px-4 py-2 rounded">
+                🔒 Cerrar Caja
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Panel de Venta -->
+        <div class="lg:col-span-2">
+            <!-- Búsqueda de Productos -->
+            <div class="bg-white rounded-lg shadow p-4 mb-4">
+                <div class="flex gap-3 mb-3">
+                    <input type="text" id="buscar-producto" placeholder="🔍 Buscar por nombre, SKU o código de barras..." 
+                           class="flex-1 p-3 border rounded-lg text-lg">
+                    <button onclick="activarEscaner()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                        📷 Escanear
+                    </button>
+                </div>
+                <div id="resultados-busqueda" class="mt-2"></div>
+            </div>
+            
+            <!-- Cliente -->
+            <div class="bg-white rounded-lg shadow p-4 mb-4">
+                <div class="flex gap-3">
+                    <input type="text" id="buscar-cliente" placeholder="👤 Buscar cliente por teléfono..." 
+                           class="flex-1 p-2 border rounded">
+                    <button onclick="buscarCliente()" class="bg-green-600 text-white px-3 py-2 rounded text-sm hover:bg-green-700">
+                        Buscar
+                    </button>
+                    <button onclick="nuevoCliente()" class="bg-purple-600 text-white px-3 py-2 rounded text-sm hover:bg-purple-700">
+                        Nuevo
+                    </button>
+                </div>
+                <div id="info-cliente" class="mt-2 text-sm text-gray-600"></div>
+            </div>
+
+            <!-- Productos Populares -->
+            <div class="bg-white rounded-lg shadow p-4">
+                <h3 class="text-lg font-semibold mb-3">🔥 Productos Populares</h3>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    {% for producto in productos_populares %}
+                    <div class="border rounded-lg p-3 cursor-pointer hover:bg-gray-50 producto-card"
+                         data-id="{{ producto.id }}" data-nombre="{{ producto.nombre }}" 
+                         data-precio="{{ producto.precio_venta }}" data-stock="{{ producto.stock_actual }}">
+                        {% if producto.imagen %}
+                            <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="w-full h-16 object-cover rounded mb-2">
+                        {% else %}
+                            <div class="w-full h-16 bg-gray-200 rounded mb-2 flex items-center justify-center">
+                                📦
+                            </div>
+                        {% endif %}
+                        <div class="text-sm font-medium">{{ producto.nombre|truncatechars:20 }}</div>
+                        <div class="text-green-600 font-bold">${{ producto.precio_venta }}</div>
+                        <div class="text-xs text-gray-500">Stock: {{ producto.stock_actual }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Carrito de Compras -->
+        <div class="bg-white rounded-lg shadow p-4">
+            <h3 class="text-lg font-semibold mb-3">🛒 Carrito</h3>
+            
+            <div id="carrito-items" class="space-y-2 mb-4 max-h-64 overflow-y-auto">
+                <div class="text-gray-500 text-center py-8">
+                    Carrito vacío
+                </div>
+            </div>
+
+            <div class="border-t pt-4">
+                <div class="flex justify-between text-xl font-bold mb-4">
+                    <span>Total:</span>
+                    <span id="total-venta">$0.00</span>
+                </div>
+
+                <!-- Descuentos y Promociones -->
+                <div class="mb-4 border-t pt-4">
+                    <h4 class="font-medium mb-2">🏷️ Descuentos</h4>
+                    <div class="flex gap-2 mb-2">
+                        <input type="number" id="descuento-porcentaje" placeholder="%" min="0" max="100" 
+                               class="w-16 p-1 border rounded text-sm">
+                        <input type="number" id="descuento-fijo" placeholder="$" min="0" step="0.01"
+                               class="w-20 p-1 border rounded text-sm">
+                        <button onclick="aplicarDescuento()" class="bg-orange-500 text-white px-2 py-1 rounded text-xs hover:bg-orange-600">
+                            Aplicar
+                        </button>
+                    </div>
+                    <div id="descuento-aplicado" class="text-sm text-orange-600 hidden">
+                        Descuento aplicado: $<span id="monto-descuento">0</span>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">Método de Pago:</label>
+                    <select id="metodo-pago" class="w-full p-2 border rounded">
+                        <option value="efectivo">💵 Efectivo</option>
+                        <option value="tarjeta">💳 Tarjeta</option>
+                        <option value="mercadopago">📱 Mercado Pago</option>
+                        <option value="transferencia">🏦 Transferencia</option>
+                    </select>
+                </div>
+
+                <button id="procesar-venta" class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 disabled:bg-gray-400" disabled>
+                    💰 Procesar Venta
+                </button>
+
+                <button id="limpiar-carrito" class="w-full bg-gray-500 text-white py-2 rounded-lg mt-2 hover:bg-gray-600">
+                    🗑️ Limpiar Carrito
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let carrito = [];
+let totalVenta = 0;
+let clienteSeleccionado = null;
+let descuentoAplicado = 0;
+let escanerActivo = false;
+
+// Búsqueda de productos
+document.getElementById('buscar-producto').addEventListener('input', function(e) {
+    const query = e.target.value;
+    if (query.length < 2) {
+        document.getElementById('resultados-busqueda').innerHTML = '';
+        return;
+    }
+
+    fetch(`/stock/api/buscar-productos/?q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+            const resultados = document.getElementById('resultados-busqueda');
+            if (data.productos.length === 0) {
+                resultados.innerHTML = '<div class="text-gray-500 p-2">No se encontraron productos</div>';
+                return;
+            }
+
+            let html = '<div class="border rounded-lg max-h-48 overflow-y-auto">';
+            data.productos.forEach(producto => {
+                html += `
+                    <div class="p-2 hover:bg-gray-50 cursor-pointer border-b producto-resultado"
+                         data-id="${producto.id}" data-nombre="${producto.nombre}" 
+                         data-precio="${producto.precio}" data-stock="${producto.stock}">
+                        <div class="font-medium">${producto.nombre}</div>
+                        <div class="text-sm text-gray-600">SKU: ${producto.sku} | $${producto.precio} | Stock: ${producto.stock}</div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            resultados.innerHTML = html;
+
+            // Agregar eventos a resultados
+            document.querySelectorAll('.producto-resultado').forEach(item => {
+                item.addEventListener('click', function() {
+                    agregarAlCarrito(this.dataset);
+                    document.getElementById('buscar-producto').value = '';
+                    document.getElementById('resultados-busqueda').innerHTML = '';
+                });
+            });
+        });
+});
+
+// Productos populares
+document.querySelectorAll('.producto-card').forEach(card => {
+    card.addEventListener('click', function() {
+        agregarAlCarrito(this.dataset);
+    });
+});
+
+function agregarAlCarrito(producto) {
+    const existente = carrito.find(item => item.id === producto.id);
+    
+    if (existente) {
+        if (existente.cantidad < parseInt(producto.stock)) {
+            existente.cantidad++;
+        } else {
+            alert('Stock insuficiente');
+            return;
+        }
+    } else {
+        carrito.push({
+            id: producto.id,
+            nombre: producto.nombre,
+            precio: parseFloat(producto.precio),
+            cantidad: 1,
+            stock: parseInt(producto.stock)
+        });
+    }
+    
+    actualizarCarrito();
+}
+
+function actualizarCarrito() {
+    const carritoItems = document.getElementById('carrito-items');
+    const totalElement = document.getElementById('total-venta');
+    const procesarBtn = document.getElementById('procesar-venta');
+    
+    if (carrito.length === 0) {
+        carritoItems.innerHTML = '<div class="text-gray-500 text-center py-8">Carrito vacío</div>';
+        totalVenta = 0;
+        procesarBtn.disabled = true;
+    } else {
+        let html = '';
+        totalVenta = 0;
+        
+        carrito.forEach((item, index) => {
+            const subtotal = item.precio * item.cantidad;
+            totalVenta += subtotal;
+            
+            html += `
+                <div class="flex justify-between items-center p-2 border rounded">
+                    <div class="flex-1">
+                        <div class="font-medium text-sm">${item.nombre}</div>
+                        <div class="text-xs text-gray-600">$${item.precio} c/u</div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="cambiarCantidad(${index}, -1)" class="bg-red-500 text-white w-6 h-6 rounded text-xs">-</button>
+                        <span class="w-8 text-center">${item.cantidad}</span>
+                        <button onclick="cambiarCantidad(${index}, 1)" class="bg-green-500 text-white w-6 h-6 rounded text-xs">+</button>
+                        <button onclick="eliminarItem(${index})" class="bg-gray-500 text-white w-6 h-6 rounded text-xs">×</button>
+                    </div>
+                    <div class="w-16 text-right font-bold">$${subtotal.toFixed(2)}</div>
+                </div>
+            `;
+        });
+        
+        carritoItems.innerHTML = html;
+        procesarBtn.disabled = false;
+    }
+    
+    const totalFinal = Math.max(0, totalVenta - descuentoAplicado);
+    totalElement.innerHTML = `
+        <div>Subtotal: $${totalVenta.toFixed(2)}</div>
+        ${descuentoAplicado > 0 ? `<div class="text-orange-600">Descuento: -$${descuentoAplicado.toFixed(2)}</div>` : ''}
+        <div class="text-xl font-bold border-t pt-1">Total: $${totalFinal.toFixed(2)}</div>
+    `;
+}
+
+function cambiarCantidad(index, cambio) {
+    const item = carrito[index];
+    const nuevaCantidad = item.cantidad + cambio;
+    
+    if (nuevaCantidad <= 0) {
+        carrito.splice(index, 1);
+    } else if (nuevaCantidad <= item.stock) {
+        item.cantidad = nuevaCantidad;
+    } else {
+        alert('Stock insuficiente');
+        return;
+    }
+    
+    actualizarCarrito();
+}
+
+function eliminarItem(index) {
+    carrito.splice(index, 1);
+    actualizarCarrito();
+}
+
+// Procesar venta
+document.getElementById('procesar-venta').addEventListener('click', function() {
+    if (carrito.length === 0) return;
+    
+    const metodoPago = document.getElementById('metodo-pago').value;
+    
+    const ventaData = {
+        productos: carrito.map(item => ({
+            producto_id: item.id,
+            cantidad: item.cantidad
+        })),
+        metodo_pago: metodoPago,
+        observaciones: ''
+    };
+    
+    fetch('/stock/venta/procesar/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify(ventaData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.mensaje);
+            carrito = [];
+            actualizarCarrito();
+            location.reload(); // Recargar para actualizar stock
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        alert('Error procesando venta: ' + error);
+    });
+});
+
+// Limpiar carrito
+document.getElementById('limpiar-carrito').addEventListener('click', function() {
+    carrito = [];
+    descuentoAplicado = 0;
+    document.getElementById('descuento-aplicado').classList.add('hidden');
+    actualizarCarrito();
+});
+
+// Activar escáner de código de barras
+function activarEscaner() {
+    if (!escanerActivo) {
+        escanerActivo = true;
+        document.getElementById('buscar-producto').placeholder = '📷 Escanee el código de barras...';
+        document.getElementById('buscar-producto').focus();
+        
+        // Simular escáner - en producción usar librería de código de barras
+        setTimeout(() => {
+            escanerActivo = false;
+            document.getElementById('buscar-producto').placeholder = '🔍 Buscar por nombre, SKU o código de barras...';
+        }, 10000);
+    }
+}
+
+// Buscar cliente
+function buscarCliente() {
+    const telefono = document.getElementById('buscar-cliente').value;
+    if (!telefono) {
+        alert('Ingrese un teléfono');
+        return;
+    }
+    
+    // Simular búsqueda de cliente
+    fetch(`/stock/api/buscar-cliente/?telefono=${encodeURIComponent(telefono)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.cliente) {
+                clienteSeleccionado = data.cliente;
+                document.getElementById('info-cliente').innerHTML = `
+                    <div class="bg-green-50 p-2 rounded border border-green-200">
+                        <strong>${data.cliente.nombre}</strong> - Puntos: ${data.cliente.puntos}
+                        <button onclick="quitarCliente()" class="ml-2 text-red-600 text-xs">Quitar</button>
+                    </div>
+                `;
+            } else {
+                document.getElementById('info-cliente').innerHTML = `
+                    <div class="text-red-600">Cliente no encontrado</div>
+                `;
+                clienteSeleccionado = null;
+            }
+        })
+        .catch(() => {
+            alert('Error buscando cliente');
+        });
+}
+
+// Nuevo cliente
+function nuevoCliente() {
+    const nombre = prompt('Nombre del cliente:');
+    const telefono = prompt('Teléfono:');
+    
+    if (nombre && telefono) {
+        // Simular creación de cliente
+        clienteSeleccionado = {
+            id: Date.now(),
+            nombre: nombre,
+            telefono: telefono,
+            puntos: 0
+        };
+        
+        document.getElementById('info-cliente').innerHTML = `
+            <div class="bg-blue-50 p-2 rounded border border-blue-200">
+                <strong>${nombre}</strong> (Nuevo cliente)
+                <button onclick="quitarCliente()" class="ml-2 text-red-600 text-xs">Quitar</button>
+            </div>
+        `;
+        
+        document.getElementById('buscar-cliente').value = telefono;
+    }
+}
+
+// Quitar cliente
+function quitarCliente() {
+    clienteSeleccionado = null;
+    document.getElementById('info-cliente').innerHTML = '';
+    document.getElementById('buscar-cliente').value = '';
+}
+
+// Aplicar descuento
+function aplicarDescuento() {
+    const porcentaje = parseFloat(document.getElementById('descuento-porcentaje').value) || 0;
+    const fijo = parseFloat(document.getElementById('descuento-fijo').value) || 0;
+    
+    if (porcentaje > 0) {
+        descuentoAplicado = (totalVenta * porcentaje) / 100;
+    } else if (fijo > 0) {
+        descuentoAplicado = Math.min(fijo, totalVenta);
+    } else {
+        descuentoAplicado = 0;
+    }
+    
+    if (descuentoAplicado > 0) {
+        document.getElementById('monto-descuento').textContent = descuentoAplicado.toFixed(2);
+        document.getElementById('descuento-aplicado').classList.remove('hidden');
+    } else {
+        document.getElementById('descuento-aplicado').classList.add('hidden');
+    }
+    
+    actualizarCarrito();
+}
+</script>
+
+{% csrf_token %}
+{% endblock %}

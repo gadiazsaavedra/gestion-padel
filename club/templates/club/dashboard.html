@@ -1,0 +1,151 @@
+{% extends 'club/base.html' %}
+{% block title %}Panel de Métricas{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto py-8">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold text-center flex-1">Panel de Métricas</h1>
+    <a href="{% url 'jugadores:ejecutar_emparejamiento' %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded font-semibold shadow-lg border-2 border-green-800"
+       onclick="return confirm('¿Ejecutar algoritmo de emparejamiento?')">
+      🔄 Ejecutar Emparejamiento
+    </a>
+  </div>
+  <form method="get" class="mb-8 flex flex-wrap gap-4 items-end justify-center bg-white rounded shadow p-4">
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Desde</label>
+      <input type="date" name="fecha_inicio" value="{{ fecha_inicio|date:'Y-m-d' }}" class="border rounded px-2 py-1" />
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Hasta</label>
+      <input type="date" name="fecha_fin" value="{{ fecha_fin|date:'Y-m-d' }}" class="border rounded px-2 py-1" />
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Torneo</label>
+      <select name="torneo" class="border rounded px-2 py-1">
+        <option value="">Todos</option>
+        {% for torneo in torneos %}
+          <option value="{{ torneo.id }}" {% if torneo_id == torneo.id %}selected{% endif %}>{{ torneo.nombre }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded font-semibold">Filtrar</button>
+    </div>
+  </form>
+  <!-- Métricas Financieras -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white rounded shadow p-6 text-center border-l-4 border-green-500">
+      <div class="text-3xl font-bold text-green-700">${{ ingresos_hoy|floatformat:0 }}</div>
+      <div class="text-gray-600 mt-2">💰 Ingresos Totales Hoy</div>
+      <div class="text-xs text-gray-500 mt-1">
+        Reservas: ${{ ingresos_reservas_hoy|floatformat:0 }} | Bar: ${{ ingresos_bar_hoy|floatformat:0 }}
+      </div>
+    </div>
+    <div class="bg-white rounded shadow p-6 text-center border-l-4 border-blue-500">
+      <div class="text-3xl font-bold text-blue-700">${{ ingresos_mes|floatformat:0 }}</div>
+      <div class="text-gray-600 mt-2">📊 Ingresos del Mes</div>
+      <div class="text-xs text-gray-500 mt-1">
+        Reservas: ${{ ingresos_reservas_mes|floatformat:0 }} | Bar: ${{ ingresos_bar_mes|floatformat:0 }}
+      </div>
+    </div>
+    <div class="bg-white rounded shadow p-6 text-center border-l-4 border-yellow-500">
+      <div class="text-3xl font-bold text-yellow-700">{{ pagos_pendientes }}</div>
+      <div class="text-gray-600 mt-2">⏳ Pagos Pendientes</div>
+    </div>
+    <div class="bg-white rounded shadow p-6 text-center border-l-4 border-red-500">
+      <div class="text-3xl font-bold text-red-700">${{ monto_pendiente|floatformat:0 }}</div>
+      <div class="text-gray-600 mt-2">💳 Monto Pendiente</div>
+    </div>
+  </div>
+  
+  <!-- Métricas Generales -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white rounded shadow p-6 text-center">
+      <div class="text-4xl font-bold text-blue-700">{{ reservas_activas }}</div>
+      <div class="text-gray-600 mt-2">Reservas activas hoy</div>
+    </div>
+    <div class="bg-white rounded shadow p-6 text-center">
+      <div class="text-4xl font-bold text-green-700">{{ ventas_hoy }}</div>
+      <div class="text-gray-600 mt-2">Ventas hoy</div>
+    </div>
+    <div class="bg-white rounded shadow p-6 text-center">
+      <div class="text-4xl font-bold text-yellow-700">{{ jugadores_activos }}</div>
+      <div class="text-gray-600 mt-2">Jugadores activos</div>
+    </div>
+    <div class="bg-white rounded shadow p-6 text-center">
+      <div class="text-4xl font-bold text-red-700">{{ productos_bajo_stock }}</div>
+      <div class="text-gray-600 mt-2">Productos con bajo stock</div>
+    </div>
+  </div>
+  <div class="bg-white rounded shadow p-6 mt-8">
+    <h2 class="text-xl font-bold mb-4">Reservas por estado</h2>
+    <canvas id="chartReservas" height="120"></canvas>
+  </div>
+  <div class="bg-white rounded shadow p-6 mt-8">
+    <h2 class="text-xl font-bold mb-4">Ventas por día</h2>
+    <canvas id="chartVentas" height="120"></canvas>
+  </div>
+  <div class="bg-white rounded shadow p-6 mt-8">
+    <h2 class="text-xl font-bold mb-4">Asistencia semanal (Top 7 jugadores)</h2>
+    <canvas id="chartAsistencia" height="120"></canvas>
+  </div>
+  <div class="bg-white rounded shadow p-6 mt-8">
+    <h2 class="text-xl font-bold mb-4">Top 5 Rendimiento (Ranking)</h2>
+    <canvas id="chartRendimiento" height="120"></canvas>
+  </div>
+  
+  <!-- Nuevos Gráficos Financieros -->
+  <div class="bg-white rounded shadow p-6 mt-8">
+    <h2 class="text-xl font-bold mb-4">💰 Ingresos Diarios</h2>
+    <canvas id="chartIngresos" height="120"></canvas>
+  </div>
+  
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+    <div class="bg-white rounded shadow p-6">
+      <h2 class="text-xl font-bold mb-4">🏆 Top Jugadores por Gasto</h2>
+      <canvas id="chartTopJugadores" height="200"></canvas>
+    </div>
+    <div class="bg-white rounded shadow p-6">
+      <h2 class="text-xl font-bold mb-4">🕰️ Horarios Más Populares</h2>
+      <canvas id="chartHorarios" height="200"></canvas>
+    </div>
+  </div>
+  
+  <!-- Gráficos del Bar/Kiosco -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+    <div class="bg-white rounded shadow p-6">
+      <h2 class="text-xl font-bold mb-4">🍫 Productos Más Vendidos</h2>
+      <canvas id="chartProductos" height="200"></canvas>
+    </div>
+    <div class="bg-white rounded shadow p-6">
+      <h2 class="text-xl font-bold mb-4">🏪 Ventas por Categoría</h2>
+      <canvas id="chartCategorias" height="200"></canvas>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Gráficos existentes
+const reservasData = {{ reservas_chart|safe }};
+const ventasData = {{ ventas_chart|safe }};
+const asistenciaData = {{ asistencia_chart|safe }};
+const rendimientoData = {{ rendimiento_chart|safe }};
+
+// Nuevos gráficos financieros
+const ingresosData = {{ ingresos_chart|safe }};
+const topJugadoresData = {{ top_jugadores_chart|safe }};
+const horariosData = {{ horarios_chart|safe }};
+const productosData = {{ productos_chart|safe }};
+const categoriasData = {{ categoria_chart|safe }};
+
+// Crear todos los gráficos
+new Chart(document.getElementById('chartReservas'), reservasData);
+new Chart(document.getElementById('chartVentas'), ventasData);
+new Chart(document.getElementById('chartAsistencia'), asistenciaData);
+new Chart(document.getElementById('chartRendimiento'), rendimientoData);
+new Chart(document.getElementById('chartIngresos'), ingresosData);
+new Chart(document.getElementById('chartTopJugadores'), topJugadoresData);
+new Chart(document.getElementById('chartHorarios'), horariosData);
+new Chart(document.getElementById('chartProductos'), productosData);
+new Chart(document.getElementById('chartCategorias'), categoriasData);
+</script>
+{% endblock %}

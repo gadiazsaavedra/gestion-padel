@@ -1,0 +1,26 @@
+{% extends 'club/base.html' %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">Reporte de Stock</h1>
+<table class="min-w-full bg-white rounded shadow">
+    <thead>
+        <tr>
+            <th class="px-4 py-2">Producto</th>
+            <th class="px-4 py-2">Categoría</th>
+            <th class="px-4 py-2">Stock</th>
+            <th class="px-4 py-2">Precio</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in productos %}
+        <tr class="border-t {% if p.stock < 5 %}bg-red-50{% endif %}">
+            <td class="px-4 py-2">{{ p.nombre }}</td>
+            <td class="px-4 py-2">{{ p.get_categoria_display }}</td>
+            <td class="px-4 py-2 font-bold {% if p.stock < 5 %}text-red-600 animate-pulse{% endif %}">{{ p.stock }}</td>
+            <td class="px-4 py-2">${{ p.precio }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="text-center py-4">Sin productos.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

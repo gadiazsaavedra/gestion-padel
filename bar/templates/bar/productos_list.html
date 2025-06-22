@@ -1,0 +1,97 @@
+{% extends 'club/base.html' %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">Inventario de Productos</h1>
+
+{% if bajo_stock_count > 0 %}
+<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4">
+    <strong>¡Atención!</strong> Hay {{ bajo_stock_count }} producto{{ bajo_stock_count|pluralize }} con stock bajo (&lt; {{ umbral_bajo_stock }} unidades).
+</div>
+{% endif %}
+
+<form method="get" class="flex flex-wrap gap-2 mb-4 items-center">
+    <label>Filtrar por categoría:
+        <select name="categoria" class="border rounded px-2 py-1">
+            <option value="">Todas</option>
+            {% for cod, nombre in categorias %}
+                <option value="{{ cod }}" {% if categoria_sel == cod %}selected{% endif %}>{{ nombre }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>Stock:
+        <select name="stock" class="border rounded px-2 py-1">
+            <option value="">Todos</option>
+            <option value="bajo" {% if stock_filtro == 'bajo' %}selected{% endif %}>Bajo (&lt; {{ umbral_bajo_stock }})</option>
+            <option value="normal" {% if stock_filtro == 'normal' %}selected{% endif %}>Normal</option>
+        </select>
+    </label>
+    <button type="submit" class="bg-gray-200 px-3 py-1 rounded">Filtrar</button>
+    {% if categoria_sel or stock_filtro %}
+        <a href="?" class="ml-2 text-blue-600">Limpiar filtros</a>
+    {% endif %}
+</form>
+
+<table class="min-w-full bg-white rounded shadow">
+    <thead>
+        <tr>
+            <th class="px-4 py-2">Nombre</th>
+            <th class="px-4 py-2">Categoría</th>
+            <th class="px-4 py-2">Stock</th>
+            <th class="px-4 py-2">Precio</th>
+            <th class="px-4 py-2">Imagen</th>
+            <th class="px-4 py-2">Características</th>
+            <th class="px-4 py-2">Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for producto in page_obj %}
+        <tr class="border-t {% if producto.stock < umbral_bajo_stock %}bg-red-50{% endif %}">
+            <td class="px-4 py-2">{{ producto.nombre }}</td>
+            <td class="px-4 py-2">{{ producto.get_categoria_display }}</td>
+            <td class="px-4 py-2">
+                <span class="font-bold {% if producto.stock < umbral_bajo_stock %}text-red-600 animate-pulse{% endif %}">
+                    {{ producto.stock }}
+                    {% if producto.stock < umbral_bajo_stock %}<span title="Stock bajo">⚠️</span>{% endif %}
+                </span>
+            </td>
+            <td class="px-4 py-2">${{ producto.precio }}</td>
+            <td class="px-4 py-2">
+                {% if producto.imagen %}
+                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="h-12 w-12 object-cover rounded">
+                {% else %}-{% endif %}
+            </td>
+            <td class="px-4 py-2 text-xs">
+                {% if producto.categoria == 'paleta' or producto.categoria == 'pelota' %}
+                    <div><b>Marca:</b> {{ producto.marca|default:'-' }}</div>
+                    <div><b>Modelo:</b> {{ producto.modelo|default:'-' }}</div>
+                    {% if producto.categoria == 'paleta' %}<div><b>Peso:</b> {{ producto.peso|default:'-' }} g</div>{% endif %}
+                    <div><b>Material:</b> {{ producto.material|default:'-' }}</div>
+                    <div><b>Color:</b> {{ producto.color|default:'-' }}</div>
+                {% else %}-{% endif %}
+            </td>
+            <td class="px-4 py-2">
+                <a href="{% url 'bar:producto_edit' producto.pk %}" class="text-blue-600">Editar</a> |
+                <a href="{% url 'bar:producto_delete' producto.pk %}" class="text-red-600">Eliminar</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-center py-4">No hay productos registrados.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="mt-4 flex justify-center">
+    <nav class="inline-flex rounded-md shadow-sm" aria-label="Pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{{ request.GET.urlencode|cut:'page='|yesno:'&,' }}" class="px-3 py-1 border rounded-l bg-gray-100">Anterior</a>
+        {% else %}
+            <span class="px-3 py-1 border rounded-l bg-gray-200 text-gray-400">Anterior</span>
+        {% endif %}
+        <span class="px-3 py-1 border-t border-b bg-white">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{{ request.GET.urlencode|cut:'page='|yesno:'&,' }}" class="px-3 py-1 border rounded-r bg-gray-100">Siguiente</a>
+        {% else %}
+            <span class="px-3 py-1 border rounded-r bg-gray-200 text-gray-400">Siguiente</span>
+        {% endif %}
+    </nav>
+</div>
+{% endblock %}

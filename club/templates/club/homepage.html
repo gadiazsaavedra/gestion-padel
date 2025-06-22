@@ -1,0 +1,259 @@
+{% extends 'club/base.html' %}
+{% block content %}
+<!-- Hero Section con Video -->
+<div class="relative mb-12">
+    <div class="w-full h-96 bg-gradient-to-r from-blue-600 to-green-600 flex items-center justify-center text-white text-center relative overflow-hidden">
+        <!-- Video de fondo (opcional) -->
+        <video autoplay muted loop class="absolute inset-0 w-full h-full object-cover opacity-30">
+            <source src="https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4" type="video/mp4">
+        </video>
+        <div class="relative z-10 bg-black bg-opacity-70 p-8 rounded-lg border border-white border-opacity-20">
+            <h1 class="text-6xl font-bold mb-4 drop-shadow-2xl" style="color: #2563eb; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">Bienvenido al Club de Pádel</h1>
+            <p class="text-2xl mb-6 drop-shadow-lg" style="color: #2563eb; text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">Disfrutá de las mejores canchas, comunidad y servicios</p>
+            {% if user.is_authenticated and user.jugador %}
+                <a href="{% url 'panel_usuario' %}" class="inline-flex items-center gap-2 bg-white text-blue-600 hover:bg-gray-100 font-semibold px-8 py-4 rounded-lg shadow-lg transition-colors text-lg">
+                    <i class="fa fa-user-circle"></i>
+                    Ir a mi panel
+                </a>
+            {% else %}
+                <a href="{% url 'registro_jugador' %}" class="inline-flex items-center gap-2 bg-white text-blue-600 hover:bg-gray-100 font-semibold px-8 py-4 rounded-lg shadow-lg transition-colors text-lg mr-4">
+                    <i class="fa fa-user-plus"></i>
+                    Registrarse
+                </a>
+                <a href="{% url 'login' %}" class="inline-flex items-center gap-2 bg-transparent border-2 border-white text-white hover:bg-white hover:text-blue-600 font-semibold px-8 py-4 rounded-lg transition-colors text-lg">
+                    <i class="fa fa-sign-in-alt"></i>
+                    Iniciar Sesión
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Galería de Fotos -->
+<div class="max-w-6xl mx-auto mb-12">
+    <h2 class="text-3xl font-bold text-center mb-8">📸 Nuestras Instalaciones</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Fotos de ejemplo -->
+        <div class="relative group overflow-hidden rounded-lg shadow-lg">
+            <img src="https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?w=500&h=300&fit=crop" 
+                 alt="Cancha de pádel principal" class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300">
+            <div class="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                <span class="text-white font-semibold text-lg">Cancha Principal</span>
+            </div>
+        </div>
+        
+        <div class="relative group overflow-hidden rounded-lg shadow-lg">
+            <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&h=300&fit=crop" 
+                 alt="Área de descanso" class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300">
+            <div class="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                <span class="text-white font-semibold text-lg">Área de Descanso</span>
+            </div>
+        </div>
+        
+        <div class="relative group overflow-hidden rounded-lg shadow-lg">
+            <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=500&h=300&fit=crop" 
+                 alt="Bar del club" class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300">
+            <div class="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                <span class="text-white font-semibold text-lg">Bar & Kiosco</span>
+            </div>
+        </div>
+        
+        <div class="relative group overflow-hidden rounded-lg shadow-lg">
+            <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&h=300&fit=crop" 
+                 alt="Vestuarios" class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300">
+            <div class="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                <span class="text-white font-semibold text-lg">Vestuarios</span>
+            </div>
+        </div>
+        
+        <div class="relative group overflow-hidden rounded-lg shadow-lg">
+            <img src="https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?w=500&h=300&fit=crop" 
+                 alt="Cancha nocturna" class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300">
+            <div class="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                <span class="text-white font-semibold text-lg">Canchas Nocturnas</span>
+            </div>
+        </div>
+        
+        <div class="relative group overflow-hidden rounded-lg shadow-lg">
+            <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&h=300&fit=crop" 
+                 alt="Estacionamiento" class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300">
+            <div class="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                <span class="text-white font-semibold text-lg">Estacionamiento</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Videos Destacados -->
+<div class="max-w-4xl mx-auto mb-12">
+    <h2 class="text-3xl font-bold text-center mb-8">🎥 Videos del Club</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <video controls class="w-full h-64 object-cover">
+                <source src="https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4" type="video/mp4">
+                Tu navegador no soporta video.
+            </video>
+            <div class="p-4">
+                <h3 class="font-bold text-lg mb-2">Tour por las Instalaciones</h3>
+                <p class="text-gray-600">Conocé todas nuestras canchas y servicios en este recorrido virtual.</p>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <video controls class="w-full h-64 object-cover">
+                <source src="https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_2mb.mp4" type="video/mp4">
+                Tu navegador no soporta video.
+            </video>
+            <div class="p-4">
+                <h3 class="font-bold text-lg mb-2">Torneo Mensual</h3>
+                <p class="text-gray-600">Highlights del último torneo disputado en nuestras canchas.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Testimonios -->
+<div class="max-w-4xl mx-auto my-12">
+    <h2 class="text-3xl font-bold mb-8 text-center">💬 Lo que dicen nuestros socios</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {% for t in testimonios %}
+        <div class="bg-white rounded shadow p-4 flex flex-col items-center">
+            {% if t.foto %}
+                <img src="{{ t.foto.url }}" alt="{{ t.nombre }}" class="h-20 w-20 rounded-full object-cover mb-2">
+            {% endif %}
+            <blockquote class="italic text-gray-700 mb-2">“{{ t.texto }}”</blockquote>
+            <div class="font-semibold text-blue-700">{{ t.nombre }}</div>
+        </div>
+        {% empty %}
+        <div class="bg-white rounded-lg shadow-lg p-6 flex flex-col items-center text-center">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face" alt="Carlos Mendez" class="h-20 w-20 rounded-full object-cover mb-4">
+            <div class="text-yellow-500 mb-3">⭐⭐⭐⭐⭐</div>
+            <blockquote class="italic text-gray-700 mb-4">"Excelentes instalaciones y un ambiente muy familiar. Las canchas están siempre en perfecto estado."</blockquote>
+            <div class="font-semibold text-blue-700">Carlos Méndez</div>
+            <div class="text-sm text-gray-500">Socio desde 2020</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-lg p-6 flex flex-col items-center text-center">
+            <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face" alt="María González" class="h-20 w-20 rounded-full object-cover mb-4">
+            <div class="text-yellow-500 mb-3">⭐⭐⭐⭐⭐</div>
+            <blockquote class="italic text-gray-700 mb-4">"Me encanta venir a jugar aquí. El sistema de reservas online es súper fácil. ¡Recomendado 100%!"</blockquote>
+            <div class="font-semibold text-blue-700">María González</div>
+            <div class="text-sm text-gray-500">Socia desde 2019</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-lg p-6 flex flex-col items-center text-center">
+            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face" alt="Roberto Silva" class="h-20 w-20 rounded-full object-cover mb-4">
+            <div class="text-yellow-500 mb-3">⭐⭐⭐⭐⭐</div>
+            <blockquote class="italic text-gray-700 mb-4">"Gran club con muy buen nivel de juego. He conocido muchos amigos aquí."</blockquote>
+            <div class="font-semibold text-blue-700">Roberto Silva</div>
+            <div class="text-sm text-gray-500">Socio desde 2021</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<!-- Redes sociales -->
+<div class="max-w-3xl mx-auto text-center my-8">
+    <h2 class="text-xl font-bold mb-2">Seguinos en redes</h2>
+    <div class="flex justify-center gap-6 text-3xl">
+        <a href="https://www.instagram.com/" target="_blank" class="hover:text-pink-500" title="Instagram"><i class="fab fa-instagram"></i> Instagram</a>
+        <a href="https://www.facebook.com/" target="_blank" class="hover:text-blue-600" title="Facebook"><i class="fab fa-facebook"></i> Facebook</a>
+        <a href="https://wa.me/" target="_blank" class="hover:text-green-500" title="WhatsApp"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+    </div>
+</div>
+<!-- Sección de reviews de jugadores/clientes -->
+<div class="max-w-4xl mx-auto my-12">
+    <h2 class="text-2xl font-bold mb-4 text-center">Opiniones de jugadores y clientes</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {% for r in reviews %}
+        <div class="bg-white rounded shadow p-4 flex flex-col items-center">
+            <div class="flex items-center gap-2 mb-2">
+                <span class="font-bold text-blue-700">{{ r.jugador }}</span>
+                <span class="text-yellow-500">{% for i in "12345"|slice:":r.puntaje" %}★{% endfor %}</span>
+            </div>
+            <blockquote class="italic text-gray-700 mb-2">“{{ r.comentario }}”</blockquote>
+            <div class="text-xs text-gray-500">{{ r.fecha|date:'d/m/Y' }}</div>
+        </div>
+        {% empty %}
+        <div class="col-span-2 text-center text-gray-500">No hay opiniones aún.</div>
+        {% endfor %}
+    </div>
+</div>
+<div class="text-center my-8">
+    {% if user.is_authenticated and user.jugador %}
+        <a href="{% url 'dejar_review' %}" class="bg-blue-600 text-white px-4 py-2 rounded">Dejar mi opinión</a>
+    {% endif %}
+</div>
+<!-- Noticias y novedades -->
+<div class="max-w-4xl mx-auto my-12">
+    <h2 class="text-2xl font-bold mb-4 text-center">Noticias y novedades</h2>
+    <div class="flex justify-center mb-4">
+        <a href="{% url 'blog_list' %}" class="bg-blue-600 text-white px-4 py-2 rounded">Ver todas las noticias</a>
+    </div>
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-4">
+        <h3 class="text-xl font-bold mb-2">
+            <a href="#" class="text-blue-700 hover:underline">🏆 Gran éxito en el Torneo de Verano 2024</a>
+        </h3>
+        <div class="text-sm text-gray-500 mb-3">15/12/2024 | Administración del Club</div>
+        <p class="mb-4 text-gray-700">El pasado fin de semana se llevó a cabo nuestro tradicional Torneo de Verano con la participación de más de 80 jugadores. La competencia fue intensa y el nivel de juego excepcional...</p>
+        <a href="#" class="text-blue-600 hover:underline font-semibold">Leer más →</a>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-4">
+        <h3 class="text-xl font-bold mb-2">
+            <a href="#" class="text-blue-700 hover:underline">🆕 Nuevos horarios de atención del Bar</a>
+        </h3>
+        <div class="text-sm text-gray-500 mb-3">10/12/2024 | Gerencia</div>
+        <p class="mb-4 text-gray-700">A partir del 1 de enero, nuestro bar ampliará sus horarios de atención para brindar un mejor servicio. Los nuevos horarios serán de lunes a domingo de 8:00 a 23:00 hs...</p>
+        <a href="#" class="text-blue-600 hover:underline font-semibold">Leer más →</a>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-4">
+        <h3 class="text-xl font-bold mb-2">
+            <a href="#" class="text-blue-700 hover:underline">💡 Mejoras en la iluminación de las canchas</a>
+        </h3>
+        <div class="text-sm text-gray-500 mb-3">05/12/2024 | Mantenimiento</div>
+        <p class="mb-4 text-gray-700">Hemos finalizado la instalación del nuevo sistema de iluminación LED en todas nuestras canchas. Esto garantiza una mejor visibilidad y menor consumo energético...</p>
+        <a href="#" class="text-blue-600 hover:underline font-semibold">Leer más →</a>
+    </div>
+</div>
+<!-- Mapa interactivo -->
+<div class="max-w-4xl mx-auto my-12">
+    <h2 class="text-2xl font-bold mb-4 text-center">¿Dónde estamos?</h2>
+    <div class="rounded shadow overflow-hidden w-full h-80 md:h-96" role="region" aria-label="Mapa del club">
+        <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3282.726123456789!2d-58.4567890123456!3d-34.5678901234567!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95bcb1234567890%3A0xabcdef1234567890!2sClub%20de%20P%C3%A1del!5e0!3m2!1ses-419!2sar!4v1710000000000!5m2!1ses-419!2sar"
+            width="100%" height="100%" style="border:0; min-height:320px;" allowfullscreen="" loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade" title="Ubicación del Club de Pádel"></iframe>
+    </div>
+</div>
+<!-- FAQ accesible editable -->
+<div class="max-w-4xl mx-auto my-12">
+    <h2 class="text-2xl font-bold mb-4 text-center">Preguntas frecuentes</h2>
+    <div class="space-y-4" id="faq">
+        {% for f in faqs %}
+        <details class="bg-white rounded shadow p-4">
+            <summary class="font-semibold cursor-pointer">{{ f.pregunta }}</summary>
+            <div class="mt-2 text-gray-700">{{ f.respuesta|linebreaks }}</div>
+        </details>
+        {% empty %}
+        <div class="text-center text-gray-500">No hay preguntas frecuentes cargadas.</div>
+        {% endfor %}
+    </div>
+</div>
+<!-- Formulario de contacto rápido -->
+<div class="max-w-2xl mx-auto my-12 bg-white p-6 rounded shadow">
+    <h2 class="text-2xl font-bold mb-4 text-center">Contacto rápido</h2>
+    <form method="post" action="{% url 'contacto_rapido' %}" class="space-y-4">
+        {% csrf_token %}
+        <input type="text" name="nombre" required placeholder="Tu nombre" class="w-full border rounded p-2">
+        <input type="email" name="email" required placeholder="Tu email" class="w-full border rounded p-2">
+        <textarea name="mensaje" required rows="4" placeholder="Tu mensaje" class="w-full border rounded p-2"></textarea>
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Enviar mensaje</button>
+    </form>
+    {% if messages %}
+        <div class="mt-4">
+            {% for message in messages %}
+                <div class="text-{{ message.tags }}-600">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

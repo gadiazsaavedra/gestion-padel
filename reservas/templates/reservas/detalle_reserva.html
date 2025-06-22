@@ -1,0 +1,19 @@
+{% extends 'club/base.html' %}
+{% block title %}Detalle de Reserva{% endblock %}
+{% block content %}
+<div class="max-w-md mx-auto bg-white rounded shadow p-6">
+    <h1 class="text-xl font-bold mb-4">Detalle de Reserva</h1>
+    <p><strong>Fecha:</strong> {{ reserva.fecha }}</p>
+    <p><strong>Hora:</strong> {{ reserva.hora|time:"H:i" }}</p>
+    <p><strong>Estado:</strong> {{ reserva.get_estado_display }}</p>
+    <p><strong>Jugador:</strong> {% if reserva.jugador %}{{ reserva.jugador.nombre }} {{ reserva.jugador.apellido }}{% else %}<span class="text-gray-400">-</span>{% endif %}</p>
+    <p><strong>Grupo:</strong> {{ reserva.grupo }}</p>
+    <p><strong>Creado por:</strong> {{ reserva.creado_por }}</p>
+    <p><strong>Método de pago:</strong> {{ reserva.metodo_pago }}</p>
+    <p><strong>Pago total:</strong> ${{ reserva.pago_total }}</p>
+    <p><strong>Pago parcial:</strong> ${{ reserva.pago_parcial }}</p>
+    <a href="{% url 'grilla_reservas' %}" class="block text-center text-blue-600 mt-4">Volver a la grilla</a>
+    <a href="{% url 'editar_reserva' reserva.id %}" class="block text-center text-blue-600 mt-2">Editar</a>
+    <a href="{% url 'cancelar_reserva' reserva.id %}" class="block text-center text-red-600 mt-2">Cancelar</a>
+</div>
+{% endblock %}

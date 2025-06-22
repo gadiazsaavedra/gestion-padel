@@ -1,0 +1,147 @@
+{% extends 'club/base.html' %}
+{% block title %}Dashboard de Reportes{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto p-4">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold">📊 Dashboard de Reportes</h1>
+        <a href="{% url 'stock_ventas:pos_dashboard' %}" class="bg-blue-600 text-white px-4 py-2 rounded">
+            ← Volver al POS
+        </a>
+    </div>
+
+    <!-- Métricas Principales -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-blue-500 text-white">
+                    📦
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Total Productos</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ total_productos }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-red-500 text-white">
+                    ⚠️
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Stock Bajo</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ productos_bajo_stock }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-green-500 text-white">
+                    💰
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Ventas del Mes</p>
+                    <p class="text-2xl font-semibold text-gray-900">${{ total_ventas_mes|floatformat:0 }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-purple-500 text-white">
+                    📈
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Reportes</p>
+                    <p class="text-2xl font-semibold text-gray-900">4</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accesos Rápidos a Reportes -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <a href="{% url 'stock_ventas:reporte_ventas_periodo' %}" class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
+            <div class="text-center">
+                <div class="text-4xl mb-3">📅</div>
+                <h3 class="text-lg font-semibold mb-2">Ventas por Período</h3>
+                <p class="text-gray-600 text-sm">Análisis de ventas por fechas</p>
+            </div>
+        </a>
+
+        <a href="{% url 'stock_ventas:reporte_productos_vendidos' %}" class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
+            <div class="text-center">
+                <div class="text-4xl mb-3">🏆</div>
+                <h3 class="text-lg font-semibold mb-2">Productos Más Vendidos</h3>
+                <p class="text-gray-600 text-sm">Top productos y análisis</p>
+            </div>
+        </a>
+
+        <a href="{% url 'stock_ventas:reporte_margenes' %}" class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
+            <div class="text-center">
+                <div class="text-4xl mb-3">💹</div>
+                <h3 class="text-lg font-semibold mb-2">Control de Márgenes</h3>
+                <p class="text-gray-600 text-sm">Rentabilidad por producto</p>
+            </div>
+        </a>
+
+        <a href="{% url 'stock_ventas:reporte_proveedores' %}" class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
+            <div class="text-center">
+                <div class="text-4xl mb-3">🏢</div>
+                <h3 class="text-lg font-semibold mb-2">Reporte Proveedores</h3>
+                <p class="text-gray-600 text-sm">Análisis de proveedores</p>
+            </div>
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Productos Más Vendidos -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold mb-4">🔥 Top Productos (30 días)</h3>
+            <div class="space-y-3">
+                {% for producto in productos_vendidos %}
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                    <div>
+                        <div class="font-medium">{{ producto.producto__nombre }}</div>
+                        <div class="text-sm text-gray-600">Vendidos: {{ producto.total_vendido }}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-bold text-green-600">${{ producto.ingresos|floatformat:0 }}</div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-gray-500 text-center py-4">No hay datos de ventas</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Ventas por Método de Pago -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold mb-4">💳 Ventas por Método de Pago</h3>
+            <div class="space-y-3">
+                {% for metodo in ventas_por_metodo %}
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                    <div>
+                        <div class="font-medium">
+                            {% if metodo.metodo_pago == 'efectivo' %}💵 Efectivo
+                            {% elif metodo.metodo_pago == 'tarjeta' %}💳 Tarjeta
+                            {% elif metodo.metodo_pago == 'mercadopago' %}📱 Mercado Pago
+                            {% elif metodo.metodo_pago == 'transferencia' %}🏦 Transferencia
+                            {% endif %}
+                        </div>
+                        <div class="text-sm text-gray-600">{{ metodo.cantidad }} ventas</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-bold text-green-600">${{ metodo.total|floatformat:0 }}</div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-gray-500 text-center py-4">No hay datos de ventas</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

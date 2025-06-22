@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-2xl mx-auto mt-8 p-6 bg-white rounded shadow">
+  <h2 class="text-xl font-bold mb-4">Grupos sugeridos</h2>
+  {% if grupos %}
+    {% for grupo in grupos %}
+      <div class="mb-6 border rounded p-4 bg-gray-50">
+        <h3 class="font-semibold mb-2">Grupo {{ forloop.counter }}</h3>
+        <ul>
+          {% for jugador in grupo %}
+            <li class="mb-1">{{ jugador.nombre }} {{ jugador.apellido }} ({{ jugador.nivel }}, {{ jugador.genero }})</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>No se encontraron grupos compatibles.</p>
+  {% endif %}
+  <a href="{% url 'sugerir_grupo' %}" class="mt-4 inline-block text-blue-600 hover:underline">Buscar otro grupo</a>
+</div>
+{% endblock %}

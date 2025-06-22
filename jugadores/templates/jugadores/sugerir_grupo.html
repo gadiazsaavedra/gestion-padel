@@ -1,0 +1,70 @@
+<!-- filepath: jugadores/templates/jugadores/sugerir_grupo.html -->
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-md mx-auto mt-8 p-6 bg-white rounded shadow">
+  <h2 class="text-xl font-bold mb-4">Sugerir grupo de jugadores</h2>
+  <form method="post">
+    {% csrf_token %}
+    <label class="block mb-2">Nivel:
+      <select name="nivel" class="w-full border rounded p-2">
+        <option value="novato">Novato</option>
+        <option value="intermedio">Intermedio</option>
+        <option value="avanzado">Avanzado</option>
+      </select>
+    </label>
+    <label class="block mb-2">Género:
+      <select name="genero" class="w-full border rounded p-2">
+        <option value="hombre">Hombre</option>
+        <option value="mujer">Mujer</option>
+        <option value="mixto">Mixto</option>
+      </select>
+    </label>
+    <label class="block mb-2">Días:
+      <select name="dias" multiple class="w-full border rounded p-2">
+        <option value="lunes">Lunes</option>
+        <option value="martes">Martes</option>
+        <option value="miércoles">Miércoles</option>
+        <option value="jueves">Jueves</option>
+        <option value="viernes">Viernes</option>
+        <option value="sábado">Sábado</option>
+        <option value="domingo">Domingo</option>
+      </select>
+      <span class="text-xs text-gray-500">Ctrl+Click para seleccionar varios</span>
+    </label>
+    <label class="block mb-4">Horas:
+      <select name="horas" multiple class="w-full border rounded p-2">
+        <option value="08:00">08:00</option>
+        <option value="09:00">09:00</option>
+        <option value="10:00">10:00</option>
+        <option value="11:00">11:00</option>
+        <option value="12:00">12:00</option>
+        <option value="13:00">13:00</option>
+        <option value="14:00">14:00</option>
+        <option value="15:00">15:00</option>
+        <option value="16:00">16:00</option>
+        <option value="17:00">17:00</option>
+        <option value="18:00">18:00</option>
+        <option value="19:00">19:00</option>
+        <option value="20:00">20:00</option>
+        <option value="21:00">21:00</option>
+        <option value="22:00">22:00</option>
+      </select>
+      <span class="text-xs text-gray-500">Ctrl+Click para seleccionar varios</span>
+    </label>
+    <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Buscar grupo</button>
+  </form>
+  {% if messages %}
+    <ul class="mt-4" role="alert" aria-live="assertive">
+      {% for message in messages %}
+        <li class="px-3 py-2 mb-2 rounded shadow text-sm font-semibold
+          {% if message.tags == 'success' %}bg-green-100 text-green-800 border-l-4 border-green-500
+          {% elif message.tags == 'error' or message.tags == 'danger' %}bg-red-100 text-red-800 border-l-4 border-red-500
+          {% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-800 border-l-4 border-yellow-500
+          {% else %}bg-blue-100 text-blue-800 border-l-4 border-blue-500{% endif %}">
+          {{ message }}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+</div>
+{% endblock %}

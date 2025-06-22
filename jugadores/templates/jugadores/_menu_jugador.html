@@ -1,0 +1,73 @@
+<li>
+  <a href="{% url 'jugadores:panel_jugador' %}"
+     class="hover:text-green-600 transition-colors flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
+     tabindex="0"
+     aria-current="page"
+     aria-label="Panel de jugador">
+    <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M13 5v6h6"/></svg>
+    <span>Panel</span>
+  </a>
+</li>
+<li>
+  <a href="{% url 'grilla_reservas' %}"
+     class="hover:text-green-600 transition-colors flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
+     tabindex="0"
+     aria-label="Reservar cancha">
+    <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+    <span>Reservar</span>
+  </a>
+</li>
+<li>
+  <a href="/club/jugadores/mis-reservas/"
+     class="hover:text-green-600 transition-colors flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
+     tabindex="0"
+     aria-label="Mis reservas">
+    <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+    <span>Mis Reservas</span>
+  </a>
+</li>
+<li>
+  <a href="{% url 'jugadores:pagos_jugador' %}"
+     class="hover:text-yellow-600 transition-colors flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-2"
+     tabindex="0"
+     aria-label="Pagos">
+    <svg class="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zm0 0V4m0 8v8"/></svg>
+    <span>Pagos</span>
+  </a>
+</li>
+<li>
+  <a href="{% url 'jugadores:ranking' %}"
+     class="hover:text-blue-600 transition-colors flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+     tabindex="0"
+     aria-label="Ranking">
+    <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 17l6-6 4 4 8-8"/></svg>
+    <span>Ranking</span>
+  </a>
+</li>
+<li>
+  <a href="{% url 'jugadores:notificaciones_jugador' %}"
+     class="hover:text-yellow-600 transition-colors flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-2"
+     tabindex="0"
+     aria-label="Notificaciones">
+    <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01"/></svg>
+    <span>Notificaciones</span>
+  </a>
+</li>
+<li>
+  <a href="{% url 'jugadores:emparejamiento' %}"
+     class="hover:text-orange-600 transition-colors flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+     tabindex="0"
+     aria-label="Emparejamiento">
+    <svg class="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-3-3h-1m-2-3a3 3 0 11-6 0m6 0a3 3 0 11-6 0m6 0v1a3 3 0 11-6 0v-1m6 0H9m11 0v1a3 3 0 11-6 0v-1"/></svg>
+    <span>Emparejamiento</span>
+  </a>
+</li>
+<li>
+  <a href="{% url 'jugadores:perfil_jugador' %}"
+     class="hover:text-gray-600 transition-colors flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2"
+     tabindex="0"
+     aria-label="Perfil">
+    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+    <span>Perfil</span>
+  </a>
+</li>

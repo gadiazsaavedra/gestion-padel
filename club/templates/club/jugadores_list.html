@@ -1,0 +1,83 @@
+{% extends 'club/base.html' %}
+{% block title %}Jugadores{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white rounded shadow p-6">
+    <h1 class="text-2xl font-bold mb-4">Jugadores</h1>
+    <a href="{% url 'jugador_create' %}" class="bg-blue-500 text-white px-4 py-2 rounded mb-4 inline-block focus:ring-2 focus:ring-blue-400 focus:outline-none">Nuevo jugador</a>
+    <form method="get" class="mb-4 flex flex-col md:flex-row gap-2 items-center flex-wrap" aria-label="Filtrar jugadores">
+        <input type="text" name="q" value="{{ query }}" placeholder="Buscar por nombre, apellido o email" class="border rounded px-3 py-2 w-full md:w-64" aria-label="Buscar jugador" />
+        <select name="nivel" class="border rounded px-3 py-2" aria-label="Filtrar por nivel">
+            <option value="">Todos los niveles</option>
+            {% for val, label in niveles %}
+                <option value="{{ val }}" {% if nivel == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <select name="genero" class="border rounded px-3 py-2" aria-label="Filtrar por género">
+            <option value="">Todos los géneros</option>
+            {% for val, label in generos %}
+                <option value="{{ val }}" {% if genero == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <input type="text" name="disponibilidad" value="{{ disponibilidad }}" placeholder="Día (ej: lunes)" class="border rounded px-3 py-2 w-full md:w-32" aria-label="Filtrar por disponibilidad" />
+        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded focus:ring-2 focus:ring-blue-400 focus:outline-none">Filtrar</button>
+    </form>
+    <div class="w-full overflow-x-auto">
+    <table class="min-w-full bg-white border text-xs md:text-sm" role="table" aria-label="Lista de jugadores">
+        <thead>
+            <tr>
+                <th class="py-2 px-4 border-b" scope="col">Nombre</th>
+                <th class="py-2 px-4 border-b" scope="col">Apellido</th>
+                <th class="py-2 px-4 border-b" scope="col">Email</th>
+                <th class="py-2 px-4 border-b" scope="col">Teléfono</th>
+                <th class="py-2 px-4 border-b" scope="col">Nivel</th>
+                <th class="py-2 px-4 border-b" scope="col">Género</th>
+                <th class="py-2 px-4 border-b" scope="col">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for jugador in page_obj %}
+            <tr class="hover:bg-gray-50">
+                <td class="py-2 px-4 border-b">{{ jugador.nombre }}</td>
+                <td class="py-2 px-4 border-b">{{ jugador.apellido }}</td>
+                <td class="py-2 px-4 border-b">{{ jugador.email }}</td>
+                <td class="py-2 px-4 border-b">{{ jugador.telefono }}</td>
+                <td class="py-2 px-4 border-b">{{ jugador.get_nivel_display }}</td>
+                <td class="py-2 px-4 border-b">{{ jugador.get_genero_display }}</td>
+                <td class="py-2 px-4 border-b flex flex-col gap-2 md:flex-row md:gap-1">
+                    <a href="{% url 'jugador_edit' jugador.pk %}"
+                       class="text-blue-600 hover:underline font-semibold rounded px-2 py-1 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                       aria-label="Editar {{ jugador.nombre }} {{ jugador.apellido }}"
+                       tabindex="0">
+                        <i class="fa-solid fa-pen-to-square mr-1" aria-hidden="true"></i>Editar
+                    </a>
+                    <a href="{% url 'jugador_delete' jugador.pk %}"
+                       class="text-red-600 hover:underline font-semibold rounded px-2 py-1 focus:ring-2 focus:ring-red-400 focus:outline-none"
+                       aria-label="Eliminar {{ jugador.nombre }} {{ jugador.apellido }}"
+                       tabindex="0">
+                        <i class="fa-solid fa-trash mr-1" aria-hidden="true"></i>Eliminar
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" class="text-center py-4">No hay jugadores registrados.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    <div class="mt-4 flex justify-center">
+        <nav class="inline-flex rounded-md shadow-sm" aria-label="Paginación">
+            {% if page_obj.has_previous %}
+                <a href="?q={{ query }}&nivel={{ nivel }}&genero={{ genero }}&disponibilidad={{ disponibilidad }}&page={{ page_obj.previous_page_number }}"
+                   class="px-3 py-1 border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                   aria-label="Página anterior">Anterior</a>
+            {% endif %}
+            <span class="px-3 py-1 border-t border-b border-gray-300 bg-gray-100 text-gray-700">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+                <a href="?q={{ query }}&nivel={{ nivel }}&genero={{ genero }}&disponibilidad={{ disponibilidad }}&page={{ page_obj.next_page_number }}"
+                   class="px-3 py-1 border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                   aria-label="Página siguiente">Siguiente</a>
+            {% endif %}
+        </nav>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,253 @@
+{% extends 'club/base.html' %}
+{% block content %}
+<div class="max-w-4xl mx-auto p-4">
+  <h1 class="text-3xl font-bold mb-6 text-gray-700">👤 Mi Perfil</h1>
+  
+  <!-- Resumen del Perfil -->
+  <div class="bg-white rounded-lg shadow p-6 mb-6">
+    <div class="flex items-center gap-6">
+      <div class="flex-shrink-0">
+        {% if form.instance.avatar %}
+          <img src="{{ form.instance.avatar.url }}" alt="Avatar" class="w-20 h-20 rounded-full object-cover border-4 border-blue-200">
+        {% else %}
+          <div class="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-2xl text-gray-500">
+            👤
+          </div>
+        {% endif %}
+      </div>
+      <div class="flex-1">
+        <h2 class="text-2xl font-bold text-gray-800">{{ form.instance.nombre }} {{ form.instance.apellido }}</h2>
+        <p class="text-gray-600 mb-2">@{{ form.instance.user.username }}</p>
+        <div class="flex gap-4 text-sm">
+          <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded">🎾 {{ form.instance.get_nivel_display }}</span>
+          <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded">👥 {{ form.instance.get_genero_display }}</span>
+          <span class="bg-green-100 text-green-800 px-2 py-1 rounded">📞 {{ form.instance.telefono }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Estadísticas del Perfil -->
+  <div class="bg-white rounded-lg shadow p-6 mb-6">
+    <h2 class="text-xl font-bold mb-4 text-gray-800">📊 Mis Estadísticas</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="text-center p-4 bg-blue-50 rounded-lg">
+        <div class="text-2xl font-bold text-blue-600">{{ estadisticas_perfil.total_reservas }}</div>
+        <div class="text-sm text-gray-600">Total Reservas</div>
+      </div>
+      <div class="text-center p-4 bg-green-50 rounded-lg">
+        <div class="text-2xl font-bold text-green-600">${{ estadisticas_perfil.total_gastado|floatformat:0 }}</div>
+        <div class="text-sm text-gray-600">Total Gastado</div>
+      </div>
+      <div class="text-center p-4 bg-purple-50 rounded-lg">
+        <div class="text-2xl font-bold text-purple-600">{{ estadisticas_perfil.puntos_totales }}</div>
+        <div class="text-sm text-gray-600">Puntos Ranking</div>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+      <div class="text-center p-4 bg-yellow-50 rounded-lg">
+        <div class="text-2xl font-bold text-yellow-600">{{ estadisticas_perfil.reservas_activas }}</div>
+        <div class="text-sm text-gray-600">Reservas Activas</div>
+      </div>
+      <div class="text-center p-4 bg-red-50 rounded-lg">
+        <div class="text-2xl font-bold text-red-600">{{ estadisticas_perfil.actividad_reciente }}</div>
+        <div class="text-sm text-gray-600">Actividad (30 días)</div>
+      </div>
+      <div class="text-center p-4 bg-gray-50 rounded-lg">
+        <div class="text-2xl font-bold text-gray-600">{{ estadisticas_perfil.dias_miembro }}</div>
+        <div class="text-sm text-gray-600">Días como Miembro</div>
+      </div>
+    </div>
+    <div class="mt-4 text-center text-sm text-gray-500">
+      📅 Miembro desde: {{ estadisticas_perfil.fecha_registro|date:'d/m/Y' }}
+    </div>
+  </div>
+  
+  <!-- Editar Datos Personales -->
+  <div class="bg-white rounded-lg shadow p-6 mb-6">
+    <h2 class="text-xl font-bold mb-4 text-gray-800">✏️ Editar Datos Personales</h2>
+    <form method="post" enctype="multipart/form-data" class="space-y-4" aria-label="Formulario de perfil" autocomplete="on">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+      <div class="mb-2 px-3 py-2 rounded shadow bg-red-100 text-red-800 border-l-4 border-red-500 text-sm font-semibold" role="alert" aria-live="assertive">
+        {% for error in form.non_field_errors %}{{ error }}<br>{% endfor %}
+      </div>
+    {% endif %}
+    {% if form.username.errors %}
+      <div class="mb-2 px-3 py-2 rounded shadow bg-red-100 text-red-800 border-l-4 border-red-500 text-sm font-semibold" role="alert" aria-live="assertive">
+        {% for error in form.username.errors %}{{ error }}<br>{% endfor %}
+      </div>
+    {% endif %}
+    {% if form.email.errors %}
+      <div class="mb-2 px-3 py-2 rounded shadow bg-red-100 text-red-800 border-l-4 border-red-500 text-sm font-semibold" role="alert" aria-live="assertive">
+        {% for error in form.email.errors %}{{ error }}<br>{% endfor %}
+      </div>
+    {% endif %}
+    {% if messages %}
+      <ul class="mb-2" role="alert" aria-live="assertive">
+        {% for message in messages %}
+          <li class="px-3 py-2 mb-2 rounded shadow text-sm font-semibold
+            {% if message.tags == 'success' %}bg-green-100 text-green-800 border-l-4 border-green-500
+            {% elif message.tags == 'error' or message.tags == 'danger' %}bg-red-100 text-red-800 border-l-4 border-red-500
+            {% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-800 border-l-4 border-yellow-500
+            {% else %}bg-blue-100 text-blue-800 border-l-4 border-blue-500{% endif %}">
+            {{ message }}
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    {{ form.non_field_errors }}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label for="id_username" class="font-semibold">Usuario</label>
+        {{ form.username }}
+        {% if form.username.errors %}<div class="text-red-600 text-xs">{{ form.username.errors.0 }}</div>{% endif %}
+        <p class="text-xs text-gray-500">Nombre de usuario único para iniciar sesión.</p>
+      </div>
+      <div>
+        {{ form.nombre.label_tag }}
+        {{ form.nombre }}
+        {% if form.nombre.errors %}<div class="text-red-600 text-xs">{{ form.nombre.errors.0 }}</div>{% endif %}
+      </div>
+      <div>
+        {{ form.apellido.label_tag }}
+        {{ form.apellido }}
+        {% if form.apellido.errors %}<div class="text-red-600 text-xs">{{ form.apellido.errors.0 }}</div>{% endif %}
+      </div>
+      <div>
+        <label for="id_email" class="font-semibold">Email</label>
+        {{ form.email }}
+        {% if form.email.errors %}<div class="text-red-600 text-xs">{{ form.email.errors.0 }}</div>{% endif %}
+        <p class="text-xs text-gray-500">Correo electrónico único y válido.</p>
+      </div>
+      <div>
+        {{ form.telefono.label_tag }}
+        {{ form.telefono }}
+        {% if form.telefono.errors %}<div class="text-red-600 text-xs">{{ form.telefono.errors.0 }}</div>{% endif %}
+      </div>
+      <div>
+        {{ form.nivel.label_tag }}
+        {{ form.nivel }}
+        {% if form.nivel.errors %}<div class="text-red-600 text-xs">{{ form.nivel.errors.0 }}</div>{% endif %}
+      </div>
+      <div>
+        {{ form.genero.label_tag }}
+        {{ form.genero }}
+        {% if form.genero.errors %}<div class="text-red-600 text-xs">{{ form.genero.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="md:col-span-2">
+        <label class="block font-semibold mb-1">Foto de perfil (avatar):</label>
+        {% if form.instance.avatar %}
+          <div class="mb-2">
+            <img src="{{ form.instance.avatar.url }}" alt="Avatar actual" class="w-20 h-20 rounded-full object-cover border border-gray-300">
+          </div>
+        {% endif %}
+        {{ form.avatar }}
+        {% if form.avatar.errors %}<div class="text-red-600 text-xs">{{ form.avatar.errors.0 }}</div>{% endif %}
+        <p class="text-xs text-gray-500 mt-1">Formatos permitidos: JPG, PNG. Tamaño recomendado: 200x200px.</p>
+      </div>
+    </div>
+      <div class="flex gap-4 pt-4">
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" tabindex="0">
+          💾 Guardar Cambios
+        </button>
+        <button type="button" onclick="resetForm()" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded shadow">
+          🔄 Restablecer
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Cambiar Contraseña -->
+  <div class="bg-white rounded-lg shadow p-6 mb-6">
+    <h2 class="text-xl font-bold mb-4 text-gray-800">🔒 Cambiar Contraseña</h2>
+    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <span class="text-yellow-400 text-lg">⚠️</span>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-yellow-700">
+            <strong>Importante:</strong> Al cambiar tu contraseña se cerrará tu sesión en otros dispositivos por seguridad.
+          </p>
+        </div>
+      </div>
+    </div>
+    <form method="post" class="space-y-4" aria-label="Formulario de cambio de contraseña" autocomplete="off" onsubmit="return confirmCambioPassword(event)">
+    {% csrf_token %}
+    <input type="hidden" name="cambiar_password" value="1">
+    {{ password_form.non_field_errors }}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        {{ password_form.old_password.label_tag }}
+        {{ password_form.old_password }}
+        {% if password_form.old_password.errors %}<div class="text-red-600 text-xs">{{ password_form.old_password.errors.0 }}</div>{% endif %}
+      </div>
+      <div>
+        {{ password_form.new_password1.label_tag }}
+        {{ password_form.new_password1 }}
+        {% if password_form.new_password1.errors %}<div class="text-red-600 text-xs">{{ password_form.new_password1.errors.0 }}</div>{% endif %}
+      </div>
+      <div>
+        {{ password_form.new_password2.label_tag }}
+        {{ password_form.new_password2 }}
+        {% if password_form.new_password2.errors %}<div class="text-red-600 text-xs">{{ password_form.new_password2.errors.0 }}</div>{% endif %}
+      </div>
+    </div>
+      <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2" tabindex="0">
+        🔒 Cambiar Contraseña
+      </button>
+    </form>
+  </div>
+
+  <!-- Modal de confirmación accesible -->
+  <div id="modal-confirmacion-password" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+    <div class="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full text-center">
+      <h3 id="modal-titulo" class="text-lg font-bold mb-2">¿Confirmar cambio de contraseña?</h3>
+      <p class="mb-4">¿Estás seguro de que deseas cambiar tu contraseña? Esta acción cerrará tu sesión en otros dispositivos.</p>
+      <div class="flex justify-center gap-4">
+        <button type="button" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500" onclick="cerrarModalConfirmacion()">Cancelar</button>
+        <button type="button" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" onclick="confirmarCambioPassword()">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let submitForm = null;
+    function confirmCambioPassword(event) {
+      if (!submitForm) {
+        event.preventDefault();
+        submitForm = event.target;
+        document.getElementById('modal-confirmacion-password').classList.remove('hidden');
+        // Foco accesible
+        setTimeout(() => {
+          document.querySelector('#modal-confirmacion-password button.bg-blue-600').focus();
+        }, 100);
+        return false;
+      }
+      return true;
+    }
+    function cerrarModalConfirmacion() {
+      document.getElementById('modal-confirmacion-password').classList.add('hidden');
+      submitForm = null;
+    }
+    function confirmarCambioPassword() {
+      if (submitForm) {
+        document.getElementById('modal-confirmacion-password').classList.add('hidden');
+        submitForm.submit();
+      }
+    }
+    // Cerrar modal con Escape
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') cerrarModalConfirmacion();
+    });
+    
+    // Función para restablecer formulario
+    function resetForm() {
+      if (confirm('¿Estás seguro de que quieres restablecer todos los cambios?')) {
+        location.reload();
+      }
+    }
+  </script>
+</div>
+{% endblock %}

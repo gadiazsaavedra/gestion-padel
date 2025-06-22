@@ -1,0 +1,57 @@
+{% extends 'club/base.html' %}
+{% block title %}Historial de Stock{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto bg-white rounded shadow p-8 mt-8">
+    <h1 class="text-2xl font-bold mb-6 text-blue-700">Historial de Stock</h1>
+    <form method="get" class="mb-6 flex flex-wrap gap-2 items-end">
+        <input type="text" name="producto" value="{{ request.GET.producto }}" placeholder="Producto" class="border px-2 py-1 rounded">
+        <select name="tipo" class="border px-2 py-1 rounded">
+            <option value="">Tipo</option>
+            <option value="entrada" {% if request.GET.tipo == 'entrada' %}selected{% endif %}>Entrada</option>
+            <option value="salida" {% if request.GET.tipo == 'salida' %}selected{% endif %}>Salida</option>
+            <option value="ajuste" {% if request.GET.tipo == 'ajuste' %}selected{% endif %}>Ajuste</option>
+        </select>
+        <input type="text" name="usuario" value="{{ request.GET.usuario }}" placeholder="Usuario" class="border px-2 py-1 rounded">
+        <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Buscar..." class="border px-2 py-1 rounded">
+        <button type="submit" class="px-3 py-1 bg-blue-600 text-white rounded">Filtrar</button>
+        <a href="?" class="ml-2 text-sm text-gray-500">Limpiar</a>
+    </form>
+    <table class="min-w-full mb-4">
+        <thead>
+            <tr class="bg-blue-100">
+                <th class="px-4 py-2">Fecha</th>
+                <th class="px-4 py-2">Producto</th>
+                <th class="px-4 py-2">Cantidad</th>
+                <th class="px-4 py-2">Tipo</th>
+                <th class="px-4 py-2">Motivo</th>
+                <th class="px-4 py-2">Usuario</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in movimientos %}
+            <tr>
+                <td class="px-4 py-2">{{ m.fecha|date:"d/m/Y H:i" }}</td>
+                <td class="px-4 py-2">{{ m.producto }}</td>
+                <td class="px-4 py-2">{{ m.cantidad }}</td>
+                <td class="px-4 py-2">{{ m.get_tipo_display }}</td>
+                <td class="px-4 py-2">{{ m.motivo }}</td>
+                <td class="px-4 py-2">{{ m.usuario }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6">No hay movimientos registrados.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% if is_paginated %}
+    <div class="flex justify-center mt-4">
+        {% if page_obj.has_previous %}
+            <a href="?{% if request.GET %}{{ request.GET.urlencode|safe }}&{% endif %}page={{ page_obj.previous_page_number }}" class="px-3 py-1 bg-blue-200 rounded-l">Anterior</a>
+        {% endif %}
+        <span class="px-3 py-1">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+            <a href="?{% if request.GET %}{{ request.GET.urlencode|safe }}&{% endif %}page={{ page_obj.next_page_number }}" class="px-3 py-1 bg-blue-200 rounded-r">Siguiente</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
