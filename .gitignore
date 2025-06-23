@@ -28,4 +28,19 @@ staticfiles/
 
 # Secrets
 .env
+.env.local
+.env.production
 config/local_settings.py
+
+# Database
+db.sqlite3
+db.sqlite3-journal
+dump.rdb
+
+# Cache
+.cache_ggshield
+.coverage
+htmlcov/
+
+# Docker
+.dockerignore

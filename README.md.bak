@@ -62,40 +62,6 @@ python manage.py setup_roles
 python manage.py runserver
 ```
 
-## 🐳 Ejecución con Docker
-
-Este proyecto incluye configuración lista para Docker y Docker Compose, permitiendo levantar tanto el backend de Django como el frontend (build de Tailwind CSS) de forma sencilla.
-
-### Requisitos
-- **Docker** y **Docker Compose** instalados
-- No se requieren variables de entorno obligatorias por defecto, pero puedes usar archivos `.env` si lo necesitas (ver comentarios en `docker-compose.yml`)
-- El backend usa **Python 3.11** (imagen `python:3.11-slim`)
-- El frontend usa **Node.js 22.13.1** (imagen `node:22.13.1-slim`)
-
-### Puertos expuestos
-- **Backend Django**: `8000` (http://localhost:8000)
-- **Frontend**: No expone puertos por defecto (el contenedor solo construye los assets de Tailwind CSS)
-
-### Instrucciones rápidas
-
-```bash
-# Construir y levantar los servicios
-# (desde la raíz del proyecto)
-docker compose up --build
-```
-
-Esto levantará:
-- `python-app`: Servidor Django accesible en http://localhost:8000
-- `js-frontend`: Construye los assets de Tailwind CSS (no expone puertos)
-
-### Notas y configuración especial
-- Si necesitas variables de entorno, descomenta las líneas `env_file` en el `docker-compose.yml` y agrega tus archivos `.env`.
-- Los assets de Tailwind CSS se generan automáticamente al construir el contenedor `js-frontend`.
-- El backend utiliza SQLite por defecto para desarrollo. Si agregas una base de datos o cache (Postgres, Redis), actualiza `docker-compose.yml` y las dependencias.
-- Los volúmenes y persistencia de archivos no están configurados por defecto. Si necesitas persistir archivos de usuario (media), monta un volumen en `/app/media`.
-
----
-
 ## 🎯 Uso
 
 1. **Admin**: `http://localhost:8000/admin/`

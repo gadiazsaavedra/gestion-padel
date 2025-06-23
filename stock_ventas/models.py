@@ -125,7 +125,13 @@ class Producto(models.Model):
         """Actualiza stock y registra movimiento de forma atómica"""
         with transaction.atomic():
             stock_anterior = self.stock_actual
-            self.stock_actual += cantidad
+            nuevo_stock = self.stock_actual + cantidad
+            
+            # Validar que el stock no sea negativo
+            if nuevo_stock < 0:
+                raise ValueError(f"Stock insuficiente. Stock actual: {self.stock_actual}, Cantidad solicitada: {abs(cantidad)}")
+            
+            self.stock_actual = nuevo_stock
             self.save()
             
             MovimientoStock.objects.create(
@@ -237,6 +243,9 @@ class Venta(models.Model):
     
     caja = models.ForeignKey(Caja, on_delete=models.CASCADE, related_name='ventas')
     fecha = models.DateTimeField(auto_now_add=True)
+    subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    descuento_porcentaje = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    descuento_monto = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     total = models.DecimalField(max_digits=10, decimal_places=2)
     metodo_pago = models.CharField(max_length=20, choices=METODOS_PAGO)
     usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='sv_ventas')
@@ -248,10 +257,22 @@ class Venta(models.Model):
     def __str__(self):
         return f"Venta #{self.id} - ${self.total}"
     
+    @property
+    def descuento_aplicado(self):
+        """Calcula el descuento total aplicado"""
+        descuento_por_porcentaje = (self.subtotal * self.descuento_porcentaje) / 100
+        return descuento_por_porcentaje + self.descuento_monto
+    
+    def calcular_total(self):
+        """Calcula el total con descuentos aplicados"""
+        self.subtotal = sum(detalle.subtotal for detalle in self.detalles.all())
+        self.total = self.subtotal - self.descuento_aplicado
+        return self.total
+    
     def save(self, *args, **kwargs):
         # Calcular total automáticamente
         if self.pk:
-            self.total = sum(detalle.subtotal for detalle in self.detalles.all())
+            self.calcular_total()
         super().save(*args, **kwargs)
 
 

@@ -1,6 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+# Importar modelos financieros para que Django los detecte
+from .models_finanzas import *
+
 
 class Jugador(models.Model):
     NIVELES = [

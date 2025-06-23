@@ -73,6 +73,8 @@ def procesar_venta(request):
         productos_venta = data.get('productos', [])
         metodo_pago = data.get('metodo_pago', 'efectivo')
         observaciones = data.get('observaciones', '')
+        descuento_porcentaje = float(data.get('descuento_porcentaje', 0))
+        descuento_monto = float(data.get('descuento_monto', 0))
         
         if not productos_venta:
             return JsonResponse({'error': 'No hay productos en la venta'}, status=400)
@@ -86,6 +88,9 @@ def procesar_venta(request):
             # Crear venta
             venta = Venta.objects.create(
                 caja=caja,
+                subtotal=0,
+                descuento_porcentaje=descuento_porcentaje,
+                descuento_monto=descuento_monto,
                 total=0,
                 metodo_pago=metodo_pago,
                 usuario=request.user,
@@ -113,8 +118,9 @@ def procesar_venta(request):
                 
                 total_venta += detalle.subtotal
             
-            # Actualizar total de venta
-            venta.total = total_venta
+            # Actualizar subtotal y calcular total con descuentos
+            venta.subtotal = total_venta
+            venta.total = venta.calcular_total()
             venta.save()
             
             return JsonResponse({

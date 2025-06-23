@@ -1,0 +1,35 @@
+services:
+  python-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: python-app
+    restart: unless-stopped
+    init: true
+    # env_file: ./.env  # Uncomment if .env file exists
+    ports:
+      - "8000:8000"  # Django development server
+    networks:
+      - clubnet
+    depends_on:
+      # If you add a database or cache, add it here
+      # - postgres
+      # - redis
+
+  js-frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../frontendDockerfile
+    container_name: js-frontend
+    restart: unless-stopped
+    init: true
+    # env_file: ./frontend/.env  # Uncomment if .env file exists
+    networks:
+      - clubnet
+    # This service builds Tailwind CSS assets; no ports exposed by default
+    # If you want to run a dev server, add ports and command here
+
+# Networks for inter-service communication
+networks:
+  clubnet:
+    driver: bridge

@@ -47,18 +47,34 @@
                       <li class="relative group">
                         {% if menu_item.submenu %}
                           <!-- Menú con submenú mejorado -->
-                          <button class="flex items-center gap-2 py-2 px-4 md:py-2 md:px-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all duration-200 shadow-lg">
+                          <button class="flex items-center gap-2 py-2 px-4 md:py-2 md:px-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all duration-200 shadow-lg relative group">
                             <i class="fa {{ menu_item.icon }} text-lg"></i>
                             <span class="hidden md:inline">{{ menu_item.name }}</span>
                             <i class="fa fa-chevron-down ml-auto text-xs transform group-hover:rotate-180 transition-transform duration-200"></i>
                           </button>
                           <!-- Submenú desplegable mejorado -->
-                          <div class="absolute left-0 top-full mt-2 w-56 bg-white rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-gray-100" style="display: none;">
+                          <div class="absolute left-0 top-full mt-2 w-56 bg-white rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 border border-gray-100" style="display: none; z-index: 9999; position: absolute;">
                             <div class="py-2">
                               {% for sub_item in menu_item.submenu %}
-                                <a href="{% url sub_item.url %}" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150">
-                                  <i class="fa fa-circle text-xs text-blue-400"></i>
-                                  {{ sub_item.name }}
+                                <a href="{% url sub_item.url %}" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:text-blue-700 transition-all duration-200 border-l-4 hover:border-l-blue-500 border-l-transparent">
+                                  {% if 'empleado' in sub_item.name|lower %}
+                                    <i class="fa fa-user text-xs text-green-500"></i>
+                                  {% elif 'pago' in sub_item.name|lower and 'empleado' in sub_item.name|lower %}
+                                    <i class="fa fa-money-bill text-xs text-green-600"></i>
+                                  {% elif 'proveedor' in sub_item.name|lower and 'pago' not in sub_item.name|lower %}
+                                    <i class="fa fa-truck text-xs text-blue-500"></i>
+                                  {% elif 'pago' in sub_item.name|lower and 'proveedor' in sub_item.name|lower %}
+                                    <i class="fa fa-file-invoice-dollar text-xs text-blue-600"></i>
+                                  {% elif 'servicio' in sub_item.name|lower and 'pago' not in sub_item.name|lower %}
+                                    <i class="fa fa-cog text-xs text-yellow-500"></i>
+                                  {% elif 'pago' in sub_item.name|lower and 'servicio' in sub_item.name|lower %}
+                                    <i class="fa fa-receipt text-xs text-yellow-600"></i>
+                                  {% elif 'impuesto' in sub_item.name|lower %}
+                                    <i class="fa fa-percentage text-xs text-red-500"></i>
+                                  {% else %}
+                                    <i class="fa fa-circle text-xs text-gray-400"></i>
+                                  {% endif %}
+                                  <span class="font-medium">{{ sub_item.name }}</span>
                                 </a>
                               {% endfor %}
                             </div>
@@ -90,7 +106,7 @@
                           </script>
                         {% else %}
                           <!-- Menú simple mejorado -->
-                          <a href="{% url menu_item.url %}" class="flex items-center gap-2 py-2 px-4 md:py-2 md:px-3 {{ menu_item.color|default:'bg-blue-500 hover:bg-blue-400' }} text-white font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                          <a href="{% url menu_item.url %}" class="flex items-center gap-2 py-2 px-4 md:py-2 md:px-3 {{ menu_item.color|default:'bg-blue-500 hover:bg-blue-400' }} text-white font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5" title="{% if menu_item.name == 'Panel' %}Dashboard con métricas y gráficos{% elif menu_item.name == 'Jugadores' %}Gestión completa de jugadores{% elif menu_item.name == 'Reservas' %}Administrar reservas de canchas{% elif menu_item.name == 'Pagos' %}Gestión de pagos de jugadores{% elif menu_item.name == 'Torneos' %}Crear y administrar torneos{% elif menu_item.name == 'POS/Bar' %}Sistema punto de venta del bar{% elif menu_item.name == 'Stock' %}Gestión de inventario y productos{% elif menu_item.name == 'Reportes' %}Reportes financieros y estadísticas{% elif menu_item.name == 'Emparejamiento' %}Sistema de matching de jugadores{% elif menu_item.name == 'Admin Django' %}Panel administrativo completo{% elif menu_item.name == 'Configuración' %}Configuraciones del sistema{% else %}{{ menu_item.name }}{% endif %}">
                             <i class="fa {{ menu_item.icon }} text-lg"></i>
                             <span class="hidden md:inline">{{ menu_item.name }}</span>
                           </a>
@@ -203,6 +219,14 @@
         @media (min-width: 768px) {
             nav[role="navigation"], nav.fixed { display: block !important; }
             nav.fixed { display: none !important; }
+        }
+        /* Mejorar menú desplegable */
+        .group:hover .absolute {
+            z-index: 9999 !important;
+            display: block !important;
+        }
+        .group .absolute {
+            z-index: 9999 !important;
         }
     </style>
     <main class="container mx-auto py-8" id="main-content" tabindex="-1">

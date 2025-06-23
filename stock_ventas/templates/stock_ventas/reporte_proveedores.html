@@ -122,7 +122,11 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {{ compra.usuario.first_name|default:compra.usuario.username }}
+                            {% if compra.usuario %}
+                                {{ compra.usuario.first_name|default:compra.usuario.username }}
+                            {% else %}
+                                Sistema
+                            {% endif %}
                         </td>
                     </tr>
                     {% empty %}

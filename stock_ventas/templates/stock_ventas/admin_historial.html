@@ -92,7 +92,11 @@
                             {{ movimiento.motivo }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {{ movimiento.usuario.first_name|default:movimiento.usuario.username }}
+                            {% if movimiento.usuario %}
+                                {{ movimiento.usuario.first_name|default:movimiento.usuario.username }}
+                            {% else %}
+                                <span class="italic text-gray-400">Sin usuario</span>
+                            {% endif %}
                         </td>
                     </tr>
                     {% empty %}

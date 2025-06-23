@@ -124,15 +124,8 @@
     
     <div class="info-line">
         <span>Cajero:</span>
-        <span>{{ venta.usuario.first_name|default:venta.usuario.username }}</span>
+        <span>{% if venta.usuario %}{{ venta.usuario.first_name|default:venta.usuario.username }}{% else %}Sistema{% endif %}</span>
     </div>
-    
-    {% if venta.cliente %}
-    <div class="info-line">
-        <span>Cliente:</span>
-        <span>{{ venta.cliente.nombre }}</span>
-    </div>
-    {% endif %}
     
     <div class="info-line">
         <span>Pago:</span>
@@ -154,13 +147,13 @@
     <div class="totals">
         <div class="total-line">
             <span>Subtotal:</span>
-            <span>${{ venta.total|add:venta.descuento_aplicado }}</span>
+            <span>${{ venta.subtotal }}</span>
         </div>
         
         {% if venta.descuento_aplicado > 0 %}
         <div class="total-line">
             <span>Descuento:</span>
-            <span>-${{ venta.descuento_aplicado }}</span>
+            <span>-${{ venta.descuento_aplicado|floatformat:2 }}</span>
         </div>
         {% endif %}
         
@@ -170,12 +163,7 @@
         </div>
     </div>
 
-    {% if venta.cliente and venta.puntos_otorgados > 0 %}
-    <div class="info-line">
-        <span>Puntos ganados:</span>
-        <span>{{ venta.puntos_otorgados }}</span>
-    </div>
-    {% endif %}
+
 
     <div class="footer">
         <div>¡Gracias por su compra!</div>
